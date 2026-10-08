@@ -1,13 +1,14 @@
 package swingx;
 
-import java.awt.Cursor;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.RenderingHints;
 import java.awt.Shape;
 import java.awt.geom.Area;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 
 public class RoundLabel extends JLabel {
@@ -48,9 +49,13 @@ public class RoundLabel extends JLabel {
 
     public RoundLabel() {
         setOpaque(false);
-        setCursor(new Cursor(Cursor.HAND_CURSOR));  
     }
-
+    
+    public void setIcon(String rutaImagen, int lado) {
+        ImageIcon icono = new ImageIcon(getClass().getResource(rutaImagen));
+        setIcon(new ImageIcon(icono.getImage().getScaledInstance(lado, lado, Image.SCALE_SMOOTH)));
+    }
+   
     @Override
     protected void paintComponent(Graphics grphcs) {
         Graphics2D g2 = (Graphics2D) grphcs.create();
@@ -115,7 +120,4 @@ public class RoundLabel extends JLabel {
         return area;
     }
 
-    public int getY(int i) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
 }
