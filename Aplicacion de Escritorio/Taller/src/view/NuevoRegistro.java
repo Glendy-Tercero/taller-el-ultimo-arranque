@@ -1,7 +1,20 @@
 package view;
 
+import controller.AbastecimientoController;
+import controller.ClienteController;
+import controller.MecanicoController;
+import controller.OrdenController;
+import controller.RepuestoController;
+import controller.RepuestoUtilizadoController;
+import controller.ServicioController;
+import controller.ServicioRealizadoController;
+import controller.VehiculoController;
 import java.awt.Color;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.geom.RoundRectangle2D;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 import swingx.RoundButton;
 import swingx.RoundPanel;
@@ -11,6 +24,18 @@ public class NuevoRegistro extends javax.swing.JFrame {
     private int moverX, moverY, x, y;
     private RoundButton[] botones;
     private RoundPanel[] paneles;
+    private Image icono;
+    
+    private ClienteController controladorCli = new ClienteController();
+    private VehiculoController controladorVeh = new VehiculoController();
+    private MecanicoController controladorMec = new MecanicoController();
+    private OrdenController controladorOrd = new OrdenController();
+    private RepuestoController controladorRep = new RepuestoController();
+    private RepuestoUtilizadoController controladorUti = new RepuestoUtilizadoController();
+    private AbastecimientoController controladorAba = new AbastecimientoController();
+    private ServicioController controladorSer = new ServicioController();
+    private ServicioRealizadoController controladorRea = new ServicioRealizadoController();
+    
     
     public NuevoRegistro() {
         initComponents();
@@ -19,6 +44,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
         botones();
         iniciarMenu();
     }
+
     
      public void botones(){
          btnCliente.setIconPath("/icon/cliente.png", 35);
@@ -41,6 +67,8 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }
     
     private void aparecer() {
+        icono = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon/logo_taller.png"));
+        setIconImage(icono);
         setOpacity(0f);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -83,6 +111,12 @@ public class NuevoRegistro extends javax.swing.JFrame {
         btnRealizado.setVisible(grupoServicio);
     }
 
+     private void limpiar(JTextField... campos) {
+        for (JTextField campo : campos) {
+            campo.setText("");
+        }
+    }
+     
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -137,9 +171,9 @@ public class NuevoRegistro extends javax.swing.JFrame {
         labelNombreMec = new swingx.RoundLabel();
         txtNombreMec = new javax.swing.JTextField();
         labelEspecialidadMec = new swingx.RoundLabel();
-        TxtEspecialidadMec = new javax.swing.JTextField();
+        txtEspecialidadMec = new javax.swing.JTextField();
         labelTelefonoMec = new swingx.RoundLabel();
-        TxtTelefonoMec = new javax.swing.JTextField();
+        txtTelefonoMec = new javax.swing.JTextField();
         btnGuardarMec = new swingx.RoundButton();
         btnLimpiarMec = new swingx.RoundButton();
         panelOrden = new swingx.RoundPanel();
@@ -936,9 +970,9 @@ public class NuevoRegistro extends javax.swing.JFrame {
         labelEspecialidadMec.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
         labelEspecialidadMec.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
 
-        TxtEspecialidadMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
-        TxtEspecialidadMec.setForeground(new java.awt.Color(51, 51, 51));
-        TxtEspecialidadMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
+        txtEspecialidadMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
+        txtEspecialidadMec.setForeground(new java.awt.Color(51, 51, 51));
+        txtEspecialidadMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
 
         labelTelefonoMec.setBackground(new java.awt.Color(255, 255, 255));
         labelTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
@@ -947,9 +981,9 @@ public class NuevoRegistro extends javax.swing.JFrame {
         labelTelefonoMec.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
         labelTelefonoMec.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
 
-        TxtTelefonoMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
-        TxtTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
-        TxtTelefonoMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
+        txtTelefonoMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
+        txtTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
+        txtTelefonoMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
 
         javax.swing.GroupLayout formularioMecanicoLayout = new javax.swing.GroupLayout(formularioMecanico);
         formularioMecanico.setLayout(formularioMecanicoLayout);
@@ -958,9 +992,9 @@ public class NuevoRegistro extends javax.swing.JFrame {
             .addGroup(formularioMecanicoLayout.createSequentialGroup()
                 .addGap(60, 60, 60)
                 .addGroup(formularioMecanicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(TxtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(txtNombreMec, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(TxtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(txtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 345, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(labelNombreMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -976,11 +1010,11 @@ public class NuevoRegistro extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addComponent(labelEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TxtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(labelTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(TxtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(txtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(72, Short.MAX_VALUE))
         );
 
@@ -2221,7 +2255,15 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarCliMouseExited
 
     private void btnGuardarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCliActionPerformed
-        // TODO add your handling code here:
+        String nombre = txtNombreCli.getText().trim(), direccion = txtDireccionCli.getText().trim(), telefono = txtTelefonoCli.getText().trim();
+        
+        if (nombre.isEmpty() || direccion.isEmpty() || telefono.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+            } else {
+                String mensaje = controladorCli.insertar(nombre, direccion, telefono);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtNombreCli, txtDireccionCli, txtTelefonoCli);
+            }
     }//GEN-LAST:event_btnGuardarCliActionPerformed
 
     private void btnLimpiarCliMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarCliMouseEntered
@@ -2233,7 +2275,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarCliMouseExited
 
     private void btnLimpiarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarCliActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtNombreCli, txtDireccionCli, txtTelefonoCli);
     }//GEN-LAST:event_btnLimpiarCliActionPerformed
 
     private void btnGuardarVehMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarVehMouseEntered
@@ -2245,7 +2287,25 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarVehMouseExited
 
     private void btnGuardarVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarVehActionPerformed
-        // TODO add your handling code here:
+        String idClienteTexto = txtIdClienteVeh.getText().trim(), placa = txtPlacaVeh.getText().trim().toUpperCase(), marca = txtMarcaVeh.getText().trim(),
+                modelo = txtModeloVeh.getText().trim(), anioTexto = txtAnioVeh.getText().trim(), color = txtColorVeh.getText().trim();
+
+        if (idClienteTexto.isEmpty() || placa.isEmpty() || marca.isEmpty() || modelo.isEmpty() || anioTexto.isEmpty() || color.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else if (!placa.matches("[A-Z]{1,3}-?\\d{3}[A-Z]{3}")) {
+            JOptionPane.showMessageDialog(this, "La placa no tiene un formato válido");
+        } else {
+            try {
+                int idClienteNum = Integer.parseInt(idClienteTexto);
+                int anioNum = Integer.parseInt(anioTexto);
+                String mensaje = controladorVeh.insertar(idClienteNum, placa, marca, modelo, anioNum, color);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtIdClienteVeh, txtPlacaVeh, txtMarcaVeh, txtModeloVeh, txtAnioVeh, txtColorVeh);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El ID de cliente y el año deben ser números");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarVehActionPerformed
 
     private void btnLimpiarVehMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarVehMouseEntered
@@ -2257,7 +2317,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarVehMouseExited
 
     private void btnLimpiarVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarVehActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtIdClienteVeh, txtPlacaVeh, txtMarcaVeh, txtModeloVeh, txtAnioVeh, txtColorVeh);
     }//GEN-LAST:event_btnLimpiarVehActionPerformed
 
     private void btnGuardarMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarMecMouseEntered
@@ -2269,7 +2329,15 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarMecMouseExited
 
     private void btnGuardarMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarMecActionPerformed
-        // TODO add your handling code here:
+        String nombre = txtNombreMec.getText().trim(), especialidad = txtEspecialidadMec.getText().trim(), telefono = txtTelefonoMec.getText().trim();
+
+        if (nombre.isEmpty() || especialidad.isEmpty() || telefono.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            String mensaje = controladorMec.insertar(nombre, especialidad, telefono);
+            JOptionPane.showMessageDialog(this, mensaje);
+            limpiar(txtNombreMec, txtEspecialidadMec, txtTelefonoMec);
+        }
     }//GEN-LAST:event_btnGuardarMecActionPerformed
 
     private void btnLimpiarMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarMecMouseEntered
@@ -2281,7 +2349,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarMecMouseExited
 
     private void btnLimpiarMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarMecActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtNombreMec, txtEspecialidadMec, txtTelefonoMec);
     }//GEN-LAST:event_btnLimpiarMecActionPerformed
 
     private void btnGuardarOrdMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarOrdMouseEntered
@@ -2293,7 +2361,22 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarOrdMouseExited
 
     private void btnGuardarOrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarOrdActionPerformed
-        // TODO add your handling code here:
+        String idVehiculoTexto = txtIdVehiculoOrd.getText().trim(), idMecanicoTexto = txtIdMecanicoOrd.getText().trim(), descripcion = txtDescripcionOrd.getText().trim();
+
+        if (idVehiculoTexto.isEmpty() || idMecanicoTexto.isEmpty() || descripcion.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                int idVehiculoNum = Integer.parseInt(idVehiculoTexto);
+                int idMecanicoNum = Integer.parseInt(idMecanicoTexto);
+                String mensaje = controladorOrd.insertar(idVehiculoNum, idMecanicoNum, descripcion);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtIdVehiculoOrd, txtIdMecanicoOrd, txtDescripcionOrd);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Los ID de vehículo y mecánico deben ser números");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarOrdActionPerformed
 
     private void btnLimpiarOrdMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarOrdMouseEntered
@@ -2305,7 +2388,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarOrdMouseExited
 
     private void btnLimpiarOrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarOrdActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtIdVehiculoOrd, txtIdMecanicoOrd, txtDescripcionOrd);
     }//GEN-LAST:event_btnLimpiarOrdActionPerformed
 
     private void btnGuardarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarRepMouseEntered
@@ -2317,7 +2400,20 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarRepMouseExited
 
     private void btnGuardarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarRepActionPerformed
-        // TODO add your handling code here:
+        String nombre = txtNombreRep.getText().trim(), descripcion = txtDescripcionRep.getText().trim(), precioTexto = txtPrecioRep.getText().trim();
+
+        if (nombre.isEmpty() || descripcion.isEmpty() || precioTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                double precioNum = Double.parseDouble(precioTexto);
+                String mensaje = controladorRep.insertar(nombre, descripcion, precioNum);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtNombreRep, txtDescripcionRep, txtPrecioRep);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El precio debe ser un número");
+            }
+        }
     }//GEN-LAST:event_btnGuardarRepActionPerformed
 
     private void btnLimpiarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarRepMouseEntered
@@ -2329,7 +2425,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarRepMouseExited
 
     private void btnLimpiarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarRepActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtNombreRep, txtDescripcionRep, txtPrecioRep);
     }//GEN-LAST:event_btnLimpiarRepActionPerformed
 
     private void btnGuardarUtiMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarUtiMouseEntered
@@ -2341,7 +2437,23 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarUtiMouseExited
 
     private void btnGuardarUtiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarUtiActionPerformed
-        // TODO add your handling code here:
+        String idOrdenTexto = txtIdOrdenUti.getText().trim(), idRepuestoTexto = txtIdRepuestoUti.getText().trim(), cantidadTexto = txtCantidadUti.getText().trim();
+
+        if (idOrdenTexto.isEmpty() || idRepuestoTexto.isEmpty() || cantidadTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                int idOrdenNum = Integer.parseInt(idOrdenTexto);
+                int idRepuestoNum = Integer.parseInt(idRepuestoTexto);
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorUti.insertar(idOrdenNum, idRepuestoNum, cantidadNum);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtIdOrdenUti, txtIdRepuestoUti, txtCantidadUti);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "La orden, el repuesto y la cantidad deben ser números");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarUtiActionPerformed
 
     private void btnLimpiarUtiMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarUtiMouseEntered
@@ -2353,7 +2465,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarUtiMouseExited
 
     private void btnLimpiarUtiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarUtiActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtIdOrdenUti, txtIdRepuestoUti, txtCantidadUti);
     }//GEN-LAST:event_btnLimpiarUtiActionPerformed
 
     private void btnGuardarAbaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarAbaMouseEntered
@@ -2365,7 +2477,21 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarAbaMouseExited
 
     private void btnGuardarAbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarAbaActionPerformed
-        // TODO add your handling code here:
+        String idRepuestoTexto = txtIdRepuestoAba.getText().trim(), cantidadTexto = txtCantidadAba.getText().trim();
+
+        if (idRepuestoTexto.isEmpty() || cantidadTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                int idRepuestoNum = Integer.parseInt(idRepuestoTexto);
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorAba.insertar(idRepuestoNum, cantidadNum);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtIdRepuestoAba, txtCantidadAba);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El repuesto y la cantidad deben ser números");
+            }
+        }
     }//GEN-LAST:event_btnGuardarAbaActionPerformed
 
     private void btnLimpiarAbaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarAbaMouseEntered
@@ -2377,7 +2503,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarAbaMouseExited
 
     private void btnLimpiarAbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarAbaActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtIdRepuestoAba, txtCantidadAba);
     }//GEN-LAST:event_btnLimpiarAbaActionPerformed
 
     private void btnGuardarSerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarSerMouseEntered
@@ -2389,7 +2515,21 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarSerMouseExited
 
     private void btnGuardarSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarSerActionPerformed
-        // TODO add your handling code here:
+        String descripcion = txtDescripcionSer.getText().trim(), costoTexto = txtCostoSer.getText().trim();
+
+        if (descripcion.isEmpty() || costoTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                double costoNum = Double.parseDouble(costoTexto);
+                String mensaje = controladorSer.insertar(descripcion, costoNum);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtDescripcionSer, txtCostoSer);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "El costo debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarSerActionPerformed
 
     private void btnLimpiarSerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarSerMouseEntered
@@ -2401,7 +2541,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarSerMouseExited
 
     private void btnLimpiarSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarSerActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtDescripcionSer, txtCostoSer);
     }//GEN-LAST:event_btnLimpiarSerActionPerformed
 
     private void btnGuardarReaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarReaMouseEntered
@@ -2413,7 +2553,22 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarReaMouseExited
 
     private void btnGuardarReaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarReaActionPerformed
-        // TODO add your handling code here:
+        String idOrdenTexto = txtIdOrdenRea.getText().trim(), idServicioTexto = txtIdServicioRea.getText().trim(), cantidadTexto = txtCantidadRea.getText().trim();
+
+        if (idOrdenTexto.isEmpty() || idServicioTexto.isEmpty() || cantidadTexto.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Algunos campos están vacíos");
+        } else {
+            try {
+                int idOrdenNum = Integer.parseInt(idOrdenTexto);
+                int idServicioNum = Integer.parseInt(idServicioTexto);
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorRea.insertar(idOrdenNum, idServicioNum, cantidadNum);
+                JOptionPane.showMessageDialog(this, mensaje);
+                limpiar(txtIdOrdenRea, txtIdServicioRea, txtCantidadRea);
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "La orden, el servicio y la cantidad deben ser números");
+            }
+        }
     }//GEN-LAST:event_btnGuardarReaActionPerformed
 
     private void btnLimpiarReaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarReaMouseEntered
@@ -2425,7 +2580,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarReaMouseExited
 
     private void btnLimpiarReaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarReaActionPerformed
-        // TODO add your handling code here:
+        limpiar(txtIdOrdenRea, txtIdServicioRea, txtCantidadRea);
     }//GEN-LAST:event_btnLimpiarReaActionPerformed
 
 
@@ -2461,8 +2616,6 @@ public class NuevoRegistro extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField TxtEspecialidadMec;
-    private javax.swing.JTextField TxtTelefonoMec;
     private swingx.RoundButton btnAbastecimiento;
     private swingx.RoundButton btnCliente;
     private swingx.RoundButton btnGuardarAba;
@@ -2562,6 +2715,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     private javax.swing.JTextField txtDescripcionRep;
     private javax.swing.JTextField txtDescripcionSer;
     private javax.swing.JTextField txtDireccionCli;
+    private javax.swing.JTextField txtEspecialidadMec;
     private javax.swing.JTextField txtIdClienteVeh;
     private javax.swing.JTextField txtIdMecanicoOrd;
     private javax.swing.JTextField txtIdOrdenRea;
@@ -2578,5 +2732,6 @@ public class NuevoRegistro extends javax.swing.JFrame {
     private javax.swing.JTextField txtPlacaVeh;
     private javax.swing.JTextField txtPrecioRep;
     private javax.swing.JTextField txtTelefonoCli;
+    private javax.swing.JTextField txtTelefonoMec;
     // End of variables declaration//GEN-END:variables
 }

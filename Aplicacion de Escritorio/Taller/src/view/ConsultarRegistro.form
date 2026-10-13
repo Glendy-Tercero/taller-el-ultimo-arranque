@@ -1714,7 +1714,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="4" rowCount="13">
+                          <Table columnCount="4" rowCount="0">
                             <Column editable="false" title="ID Cliente" type="java.lang.Object"/>
                             <Column editable="false" title="Nombre" type="java.lang.Object"/>
                             <Column editable="false" title="Direcci&#xf3;n" type="java.lang.Object"/>
@@ -1767,6 +1767,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableClientesMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -2102,7 +2105,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="7" rowCount="13">
+                          <Table columnCount="7" rowCount="0">
                             <Column editable="false" title="ID Veh&#xed;culo" type="java.lang.Object"/>
                             <Column editable="false" title="ID Cliente" type="java.lang.Object"/>
                             <Column editable="false" title="Placa" type="java.lang.Object"/>
@@ -2147,7 +2150,7 @@
                               <Renderer/>
                             </Column>
                             <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
-                              <Title value="Color"/>
+                              <Title/>
                               <Editor/>
                               <Renderer/>
                             </Column>
@@ -2173,6 +2176,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableVehiculosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -2659,13 +2665,13 @@
                                       </Group>
                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
-                                          <Component id="TxtEspecialidadMec" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                                          <Component id="txtEspecialidadMec" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                                           <Component id="labelEspecialidadMec" alignment="0" min="-2" max="-2" attributes="0"/>
                                       </Group>
                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="labelTelefonoMec" alignment="0" min="-2" max="-2" attributes="0"/>
-                                          <Component id="TxtTelefonoMec" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
+                                          <Component id="txtTelefonoMec" alignment="0" min="-2" pref="250" max="-2" attributes="0"/>
                                       </Group>
                                   </Group>
                               </Group>
@@ -2688,12 +2694,12 @@
                                   <Group type="102" alignment="1" attributes="0">
                                       <Component id="labelEspecialidadMec" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="TxtEspecialidadMec" min="-2" pref="32" max="-2" attributes="0"/>
+                                      <Component id="txtEspecialidadMec" min="-2" pref="32" max="-2" attributes="0"/>
                                   </Group>
                                   <Group type="102" attributes="0">
                                       <Component id="labelTelefonoMec" min="-2" max="-2" attributes="0"/>
                                       <EmptySpace max="-2" attributes="0"/>
-                                      <Component id="TxtTelefonoMec" min="-2" pref="32" max="-2" attributes="0"/>
+                                      <Component id="txtTelefonoMec" min="-2" pref="32" max="-2" attributes="0"/>
                                   </Group>
                               </Group>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
@@ -2757,7 +2763,7 @@
                         <Property name="horizontalTextPosition" type="int" value="2"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JTextField" name="TxtEspecialidadMec">
+                    <Component class="javax.swing.JTextField" name="txtEspecialidadMec">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Bahnschrift" size="12" style="0"/>
@@ -2790,7 +2796,7 @@
                         <Property name="horizontalTextPosition" type="int" value="2"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JTextField" name="TxtTelefonoMec">
+                    <Component class="javax.swing.JTextField" name="txtTelefonoMec">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Bahnschrift" size="12" style="0"/>
@@ -2903,7 +2909,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="4" rowCount="13">
+                          <Table columnCount="4" rowCount="0">
                             <Column editable="false" title="ID Mec&#xe1;nico" type="java.lang.Object"/>
                             <Column editable="false" title="Nombre" type="java.lang.Object"/>
                             <Column editable="false" title="Especialidad" type="java.lang.Object"/>
@@ -2956,6 +2962,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableMecanicosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -2985,12 +2994,12 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace pref="19" max="32767" attributes="0"/>
                           <Group type="103" groupAlignment="0" attributes="0">
-                              <Component id="scrollOrdenes" min="-2" pref="830" max="-2" attributes="0"/>
                               <Component id="comboFiltroOrden" min="-2" pref="250" max="-2" attributes="0"/>
                               <Group type="102" attributes="0">
                                   <EmptySpace min="2" pref="2" max="-2" attributes="0"/>
                                   <Component id="formularioOrden" min="-2" max="-2" attributes="0"/>
                               </Group>
+                              <Component id="scrollOrdenes" alignment="1" min="-2" pref="830" max="-2" attributes="0"/>
                           </Group>
                           <EmptySpace min="-2" pref="22" max="-2" attributes="0"/>
                       </Group>
@@ -3001,8 +3010,8 @@
                       <Group type="102" alignment="1" attributes="0">
                           <EmptySpace min="-2" pref="18" max="-2" attributes="0"/>
                           <Component id="comboFiltroOrden" min="-2" pref="32" max="-2" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="scrollOrdenes" pref="271" max="32767" attributes="0"/>
+                          <EmptySpace type="separate" max="-2" attributes="0"/>
+                          <Component id="scrollOrdenes" pref="259" max="32767" attributes="0"/>
                           <EmptySpace type="separate" max="-2" attributes="0"/>
                           <Component id="formularioOrden" min="-2" max="-2" attributes="0"/>
                           <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
@@ -3331,7 +3340,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="8" rowCount="13">
+                          <Table columnCount="8" rowCount="0">
                             <Column editable="false" title="ID Orden" type="java.lang.Object"/>
                             <Column editable="false" title="ID Veh&#xed;culo" type="java.lang.Object"/>
                             <Column editable="false" title="ID Mec&#xe1;nico" type="java.lang.Object"/>
@@ -3408,6 +3417,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableOrdenesMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -3511,7 +3523,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="5" rowCount="13">
+                          <Table columnCount="5" rowCount="0">
                             <Column editable="false" title="ID Repuesto" type="java.lang.Object"/>
                             <Column editable="false" title="Nombre" type="java.lang.Object"/>
                             <Column editable="false" title="Descripci&#xf3;n" type="java.lang.Object"/>
@@ -3570,6 +3582,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableRepuestosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -4174,7 +4189,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="6" rowCount="13">
+                          <Table columnCount="6" rowCount="0">
                             <Column editable="false" title="ID Repuesto Utilizado" type="java.lang.Object"/>
                             <Column editable="false" title="ID Orden" type="java.lang.Object"/>
                             <Column editable="false" title="ID Repuesto" type="java.lang.Object"/>
@@ -4239,6 +4254,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableUtilizadosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -4307,16 +4325,22 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="3" rowCount="13">
+                          <Table columnCount="4" rowCount="0">
                             <Column editable="false" title="ID Abastecimiento" type="java.lang.Object"/>
                             <Column editable="false" title="ID Repuesto" type="java.lang.Object"/>
                             <Column editable="false" title="Cantidad" type="java.lang.Object"/>
+                            <Column editable="false" title="Fecha" type="java.lang.Object"/>
                           </Table>
                         </Property>
                         <Property name="autoResizeMode" type="int" value="1"/>
                         <Property name="autoscrolls" type="boolean" value="false"/>
                         <Property name="columnModel" type="javax.swing.table.TableColumnModel" editor="org.netbeans.modules.form.editors2.TableColumnModelEditor">
                           <TableColumnModel selectionModel="0">
+                            <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
+                              <Title/>
+                              <Editor/>
+                              <Renderer/>
+                            </Column>
                             <Column maxWidth="-1" minWidth="-1" prefWidth="-1" resizable="true">
                               <Title/>
                               <Editor/>
@@ -4354,6 +4378,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableAbastecimientoMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -4642,7 +4669,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="3" rowCount="13">
+                          <Table columnCount="3" rowCount="0">
                             <Column editable="false" title="ID Servicio" type="java.lang.Object"/>
                             <Column editable="false" title="Descripci&#xf3;n" type="java.lang.Object"/>
                             <Column editable="false" title="Costo de Mano de Obra" type="java.lang.Object"/>
@@ -4689,6 +4716,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableServiciosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>
@@ -5242,7 +5272,7 @@
                           <Color blue="33" green="33" red="33" type="rgb"/>
                         </Property>
                         <Property name="model" type="javax.swing.table.TableModel" editor="org.netbeans.modules.form.editors2.TableModelEditor">
-                          <Table columnCount="6" rowCount="13">
+                          <Table columnCount="6" rowCount="0">
                             <Column editable="false" title="ID Servicio Realizado" type="java.lang.Object"/>
                             <Column editable="false" title="ID Orden" type="java.lang.Object"/>
                             <Column editable="false" title="ID Servicio" type="java.lang.Object"/>
@@ -5307,6 +5337,9 @@
                           <TableHeader reorderingAllowed="true" resizingAllowed="true"/>
                         </Property>
                       </Properties>
+                      <Events>
+                        <EventHandler event="mouseClicked" listener="java.awt.event.MouseListener" parameters="java.awt.event.MouseEvent" handler="tableRealizadosMouseClicked"/>
+                      </Events>
                     </Component>
                   </SubComponents>
                 </Container>

@@ -1,5 +1,15 @@
 package model;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.time.Year;
+import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import taller.Conexion;
+
 public class VehiculoModel {
 
     private int idVehiculo;
@@ -68,5 +78,103 @@ public class VehiculoModel {
     public void setColor(String color) {
         this.color = color;
     }
-}
+    
+    public String insertar() {
+        int actual = Year.now().getValue();
+        if (anio < 1900 || anio > actual + 1) {
+            return "El anio debe estar entre 1900 y " + (actual + 1);
+        }
+        Connection cx = Conexion.conectar();
+        if (cx == null) {
+            return Conexion.SIN_CONEXION;
+        }
+        String sql = "insert into vehiculo (id_cliente, placa, marca, modelo, anio, color) values (?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = cx.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            ps.setString(2, placa);
+            ps.setString(3, marca);
+            ps.setString(4, modelo);
+            ps.setInt(5, anio);
+            ps.setString(6, color);
+            ps.executeUpdate();
+            return "Guardado exitosamente";
+        } catch (SQLException ex) {
+            return Conexion.mensaje(ex);
+        } finally {
+            Conexion.desconectar(cx);
+        }
+    }
 
+    public ArrayList<VehiculoModel> listar() {
+        ArrayList<VehiculoModel> lista = new ArrayList<>();
+        Connection cx = Conexion.conectar();
+        if (cx == null) {
+            return lista;
+        }
+        String sql = "select id_vehiculo, id_cliente, placa, marca, modelo, anio, color from vehiculo order by id_vehiculo";
+        try (PreparedStatement ps = cx.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                VehiculoModel m = new VehiculoModel();
+                m.setIdVehiculo(rs.getInt("id_vehiculo"));
+                m.setIdCliente(rs.getInt("id_cliente"));
+                m.setPlaca(rs.getString("placa"));
+                m.setMarca(rs.getString("marca"));
+                m.setModelo(rs.getString("modelo"));
+                m.setAnio(rs.getInt("anio"));
+                m.setColor(rs.getString("color"));
+                lista.add(m);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(VehiculoModel.class.getName()).log(Level.SEVERE, null, ex);
+        } finally {
+            Conexion.desconectar(cx);
+        }
+        return lista;
+    }
+
+    public String modificar() {
+        int actual = Year.now().getValue();
+        if (anio < 1900 || anio > actual + 1) {
+            return "El anio debe estar entre 1900 y " + (actual + 1);
+        }
+        Connection cx = Conexion.conectar();
+        if (cx == null) {
+            return Conexion.SIN_CONEXION;
+        }
+        String sql = "update vehiculo set id_cliente = ?, placa = ?, marca = ?, modelo = ?, anio = ?, color = ? where id_vehiculo = ?";
+        try (PreparedStatement ps = cx.prepareStatement(sql)) {
+            ps.setInt(1, idCliente);
+            ps.setString(2, placa);
+            ps.setString(3, marca);
+            ps.setString(4, modelo);
+            ps.setInt(5, anio);
+            ps.setString(6, color);
+            ps.setInt(7, idVehiculo);
+            ps.executeUpdate();
+            return "Modificado exitosamente";
+        } catch (SQLException ex) {
+            return Conexion.mensaje(ex);
+        } finally {
+            Conexion.desconectar(cx);
+        }
+    }
+
+    public String eliminar() {
+        Connection cx = Conexion.conectar();
+        if (cx == null) {
+            return Conexion.SIN_CONEXION;
+        }
+        String sql = "delete from vehiculo where id_vehiculo = ?";
+        try (PreparedStatement ps = cx.prepareStatement(sql)) {
+            ps.setInt(1, idVehiculo);
+            ps.executeUpdate();
+            return "Eliminado exitosamente";
+        } catch (SQLException ex) {
+            return Conexion.mensaje(ex);
+        } finally {
+            Conexion.desconectar(cx);
+        }
+    }
+
+}

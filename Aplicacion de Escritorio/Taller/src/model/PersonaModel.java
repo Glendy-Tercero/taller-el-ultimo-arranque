@@ -32,4 +32,7 @@ public class PersonaModel {
         this.telefono = telefono;
     }
 
+    public String mostrarInformacion() {
+        return "Nombre: " + nombre + " | Telefono: " + telefono;
+    }
 }

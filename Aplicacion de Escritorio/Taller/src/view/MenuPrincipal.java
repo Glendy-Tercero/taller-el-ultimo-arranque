@@ -2,6 +2,7 @@ package view;
 
 import java.awt.Color;
 import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.Timer;
 
@@ -18,6 +19,8 @@ public class MenuPrincipal extends javax.swing.JFrame {
     }
     
     private void aparecer() {
+        icono = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon/logo_taller.png"));
+        setIconImage(icono);
         setOpacity(0f);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -44,7 +47,6 @@ public class MenuPrincipal extends javax.swing.JFrame {
     
     public void panels() {
         setShape(new RoundRectangle2D.Double(0, 0, getWidth(), getHeight(), 15, 15));
-        panelMenu.setShadow(true);
     }
 
     @SuppressWarnings("unchecked")
@@ -174,6 +176,7 @@ public class MenuPrincipal extends javax.swing.JFrame {
         panelMenu.setRoundBottomRight(40);
         panelMenu.setRoundTopLeft(40);
         panelMenu.setRoundTopRight(40);
+        panelMenu.setShadow(true);
 
         btnConsultar.setBackground(new java.awt.Color(0, 0, 153));
         btnConsultar.setForeground(new java.awt.Color(255, 204, 0));

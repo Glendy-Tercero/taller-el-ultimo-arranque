@@ -1190,9 +1190,9 @@
                           <Group type="102" alignment="0" attributes="0">
                               <EmptySpace min="-2" pref="60" max="-2" attributes="0"/>
                               <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="TxtEspecialidadMec" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
+                                  <Component id="txtEspecialidadMec" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
                                   <Component id="txtNombreMec" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
-                                  <Component id="TxtTelefonoMec" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
+                                  <Component id="txtTelefonoMec" alignment="0" min="-2" pref="345" max="-2" attributes="0"/>
                                   <Component id="labelTelefonoMec" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="labelEspecialidadMec" alignment="0" min="-2" max="-2" attributes="0"/>
                                   <Component id="labelNombreMec" alignment="0" min="-2" max="-2" attributes="0"/>
@@ -1211,11 +1211,11 @@
                               <EmptySpace min="-2" pref="24" max="-2" attributes="0"/>
                               <Component id="labelEspecialidadMec" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="TxtEspecialidadMec" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="txtEspecialidadMec" min="-2" pref="32" max="-2" attributes="0"/>
                               <EmptySpace type="separate" max="-2" attributes="0"/>
                               <Component id="labelTelefonoMec" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Component id="TxtTelefonoMec" min="-2" pref="32" max="-2" attributes="0"/>
+                              <Component id="txtTelefonoMec" min="-2" pref="32" max="-2" attributes="0"/>
                               <EmptySpace pref="72" max="32767" attributes="0"/>
                           </Group>
                       </Group>
@@ -1271,7 +1271,7 @@
                         <Property name="horizontalTextPosition" type="int" value="2"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JTextField" name="TxtEspecialidadMec">
+                    <Component class="javax.swing.JTextField" name="txtEspecialidadMec">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Bahnschrift" size="12" style="0"/>
@@ -1304,7 +1304,7 @@
                         <Property name="horizontalTextPosition" type="int" value="2"/>
                       </Properties>
                     </Component>
-                    <Component class="javax.swing.JTextField" name="TxtTelefonoMec">
+                    <Component class="javax.swing.JTextField" name="txtTelefonoMec">
                       <Properties>
                         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                           <Font name="Bahnschrift" size="12" style="0"/>

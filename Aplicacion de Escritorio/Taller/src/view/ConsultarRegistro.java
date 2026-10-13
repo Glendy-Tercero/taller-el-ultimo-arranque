@@ -1,21 +1,45 @@
 package view;
 
+import controller.AbastecimientoController;
+import controller.ClienteController;
+import controller.MecanicoController;
+import controller.OrdenController;
+import controller.RepuestoController;
+import controller.RepuestoUtilizadoController;
+import controller.ServicioController;
+import controller.ServicioRealizadoController;
+import controller.VehiculoController;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Image;
+import java.awt.Toolkit;
 import java.awt.geom.RoundRectangle2D;
 import javax.swing.BorderFactory;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.Timer;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableModel;
+import model.AbastecimientoModel;
+import model.ClienteModel;
+import model.MecanicoModel;
+import model.OrdenModel;
+import model.RepuestoModel;
+import model.RepuestoUtilizadoModel;
+import model.ServicioModel;
+import model.ServicioRealizadoModel;
+import model.VehiculoModel;
 import swingx.RoundButton;
 import swingx.RoundPanel;
 
@@ -25,7 +49,19 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private RoundButton[] botones;
     private RoundPanel[] paneles;
     private RoundPanel[] buscadores;
+    private Image icono;
     
+    private ClienteController controladorCli = new ClienteController();
+    private VehiculoController controladorVeh = new VehiculoController();
+    private MecanicoController controladorMec = new MecanicoController();
+    private OrdenController controladorOrd = new OrdenController();
+    private RepuestoController controladorRep = new RepuestoController();
+    private RepuestoUtilizadoController controladorUti = new RepuestoUtilizadoController();
+    private AbastecimientoController controladorAba = new AbastecimientoController();
+    private ServicioController controladorSer = new ServicioController();
+    private ServicioRealizadoController controladorRea = new ServicioRealizadoController();
+
+
     public ConsultarRegistro() {
         initComponents();
         aparecer();
@@ -33,9 +69,20 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         panels();
         botones();
         iniciarMenu();
+        mostrarClientes();
+        mostrarVehiculos();
+        mostrarMecanicos();
+        mostrarOrdenes();
+        mostrarRepuestos();
+        mostrarUtilizados();
+        mostrarAbastecimientos();
+        mostrarServicios();
+        mostrarRealizados();
     }
     
     private void aparecer() {
+        icono = Toolkit.getDefaultToolkit().getImage(getClass().getResource("/icon/logo_taller.png"));
+        setIconImage(icono);
         setOpacity(0f);
         addWindowListener(new java.awt.event.WindowAdapter() {
             @Override
@@ -79,10 +126,10 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         anchos(tableUtilizados, scrollUtilizados, 60, 30, 30, 80, 80, 80);
         
         estilizar(tableAbastecimiento, scrollAbastecimiento);
-        anchos(tableAbastecimiento, scrollAbastecimiento, 100, 100, 200);
+        anchos(tableAbastecimiento, scrollAbastecimiento, 100, 100, 150, 200);
         
         estilizar(tableServicios, scrollServicios);
-        anchos(tableServicios, scrollServicios, 50, 300, 100);
+        anchos(tableServicios, scrollServicios, 50, 300, 200);
         
         estilizar(tableRealizados, scrollRealizados);
         anchos(tableRealizados, scrollRealizados, 60, 30, 30, 80, 80, 80);
@@ -130,6 +177,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         formularioAbastecimiento.setVisible(false);
         formularioServicio.setVisible(false);
         formularioRealizado.setVisible(false);
+        txtIdOrdenUti.setEditable(false);
+        txtIdRepuestoUti.setEditable(false);
+        txtIdRepuestoAba.setEditable(false);
+        txtIdOrdenRea.setEditable(false);
+        txtIdServicioRea.setEditable(false);
     }
     
     private void estilizar(JTable tabla, JScrollPane scroll) {
@@ -139,7 +191,8 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                 setBackground(Color.WHITE);
                 setForeground(new Color(8, 29, 86));
                 setHorizontalAlignment(LEFT);
-                setFont(new Font("Arial", Font.BOLD, 12));
+                setVerticalAlignment(TOP);
+                setFont(new Font("Arial", Font.BOLD, 13));
                 super.setValue(value);
             }
         };
@@ -222,9 +275,9 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             btnUtilizado, btnAbastecimiento, btnServicio, btnRealizado};
         paneles = new RoundPanel[]{panelCliente, panelVehiculo, panelMecanico, panelOrden, panelRepuesto,
             panelUtilizado, panelAbastecimiento, panelServicio, panelRealizado};
-        filtroOrden(0);
-        buscadores = new RoundPanel[]{panelBuscaCliente, panelBuscaVehiculo, panelBuscaMecanico, panelBuscaOrden,
+         buscadores = new RoundPanel[]{panelBuscaCliente, panelBuscaVehiculo, panelBuscaMecanico, panelBuscaOrden,
             panelBuscaRepuesto, panelBuscaUtilizado, panelBuscaAbastecimiento, panelBuscaServicio, panelBuscaRealizado};
+        filtroOrden(0);
     }
 
     private void mostrar(int indice) {
@@ -248,7 +301,205 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                 filtroOrden(-1);
             }
     }
+    
+    
+    private void mostrarClientes() {
+        DefaultTableModel tabla = (DefaultTableModel) tableClientes.getModel();
+        tabla.setRowCount(0);
+        for (ClienteModel c : controladorCli.listar()) {
+            tabla.addRow(new Object[]{
+                c.getId(),
+                c.getNombre(),
+                c.getDireccion(),
+                c.getTelefono()
+            });
+        }
+    }
 
+    private void mostrarVehiculos() {
+        DefaultTableModel tabla = (DefaultTableModel) tableVehiculos.getModel();
+        tabla.setRowCount(0);
+        for (VehiculoModel v : controladorVeh.listar()) {
+            tabla.addRow(new Object[]{
+                v.getIdVehiculo(),
+                v.getIdCliente(),
+                v.getPlaca(),
+                v.getMarca(),
+                v.getModelo(),
+                v.getAnio(),
+                v.getColor()
+            });
+        }
+    }
+
+    private void mostrarMecanicos() {
+        DefaultTableModel tabla = (DefaultTableModel) tableMecanicos.getModel();
+        tabla.setRowCount(0);
+        for (MecanicoModel m : controladorMec.listar()) {
+            tabla.addRow(new Object[]{
+                m.getId(),
+                m.getNombre(),
+                m.getEspecialidad(),
+                m.getTelefono()
+            });
+        }
+    }
+
+    private void mostrarOrdenes() {
+        DefaultTableModel tabla = (DefaultTableModel) tableOrdenes.getModel();
+        tabla.setRowCount(0);
+        for (OrdenModel o : controladorOrd.listar()) {
+            tabla.addRow(new Object[]{
+                o.getIdOrden(),
+                o.getIdVehiculo(),
+                o.getIdMecanico(),
+                o.getDescripcion(),
+                o.getFechaCreacion(),
+                o.getFechaFinal(),
+                o.getEstado(),
+                o.getTotal()
+            });
+        }
+    }
+
+    private void mostrarRepuestos() {
+        DefaultTableModel tabla = (DefaultTableModel) tableRepuestos.getModel();
+        tabla.setRowCount(0);
+        for (RepuestoModel r : controladorRep.listar()) {
+            tabla.addRow(new Object[]{
+                r.getIdRepuesto(),
+                r.getNombre(),
+                r.getDescripcion(),
+                r.getPrecio(),
+                r.getExistencia()
+            });
+        }
+    }
+
+    private void mostrarUtilizados() {
+        DefaultTableModel tabla = (DefaultTableModel) tableUtilizados.getModel();
+        tabla.setRowCount(0);
+        for (RepuestoUtilizadoModel r : controladorUti.listar()) {
+            tabla.addRow(new Object[]{
+                r.getIdRepuestoUtilizado(),
+                r.getIdOrden(),
+                r.getIdRepuesto(),
+                r.getCantidad(),
+                r.getPrecio(),
+                r.getSubtotal()
+            });
+        }
+    }
+
+    private void mostrarAbastecimientos() {
+        DefaultTableModel tabla = (DefaultTableModel) tableAbastecimiento.getModel();
+        tabla.setRowCount(0);
+        for (AbastecimientoModel a : controladorAba.listar()) {
+            tabla.addRow(new Object[]{
+                a.getIdAbastecimiento(),
+                a.getIdRepuesto(),
+                a.getCantidad(),
+                a.getFecha()
+            });
+        }
+    }
+
+    private void mostrarServicios() {
+        DefaultTableModel tabla = (DefaultTableModel) tableServicios.getModel();
+        tabla.setRowCount(0);
+        for (ServicioModel s : controladorSer.listar()) {
+            tabla.addRow(new Object[]{
+                s.getIdServicio(),
+                s.getDescripcion(),
+                s.getCostoManoObra()
+            });
+        }
+    }
+
+    private void mostrarRealizados() {
+        DefaultTableModel tabla = (DefaultTableModel) tableRealizados.getModel();
+        tabla.setRowCount(0);
+        for (ServicioRealizadoModel s : controladorRea.listar()) {
+            tabla.addRow(new Object[]{
+                s.getIdServicioRealizado(),
+                s.getIdOrden(),
+                s.getIdServicio(),
+                s.getCantidad(),
+                s.getPrecio(),
+                s.getSubtotal()
+            });
+        }
+    }
+    
+    
+    private void aviso(String texto) {
+        JOptionPane.showMessageDialog(this, texto, "Información", JOptionPane.INFORMATION_MESSAGE);
+    }
+    
+     private void limpiar(JTextField... campos) {
+        for (JTextField campo : campos) {
+            campo.setText("");
+        }
+    }
+
+    private int idSeleccionado(JTable tabla) {
+        return (int) tabla.getValueAt(tabla.getSelectedRow(), 0);
+    }
+
+    private void cancelarCliente() {
+        formularioCliente.setVisible(false);
+        tableClientes.clearSelection();
+        limpiar(txtNombreCli, txtDireccionCli, txtTelefonoCli);
+    }
+    
+    private void cancelarVehiculo() {
+        formularioVehiculo.setVisible(false);
+        tableVehiculos.clearSelection();
+        limpiar(txtIdClienteVeh, txtPlacaVeh, txtMarcaVeh, txtModeloVeh, txtAnioVeh, txtColorVeh);
+    }
+    
+    private void cancelarMecanico() {
+        formularioMecanico.setVisible(false);
+        tableMecanicos.clearSelection();
+        limpiar(txtNombreMec, txtEspecialidadMec, txtTelefonoMec);
+    }
+    
+    private void cancelarOrden() {
+        formularioOrden.setVisible(false);
+        tableOrdenes.clearSelection();
+        limpiar(txtIdVehiculoOrd, txtIdMecanicoOrd, txtDescripcionOrd);
+    }
+    
+    private void cancelarRepuesto() {
+        formularioRepuesto.setVisible(false);
+        tableRepuestos.clearSelection();
+        limpiar(txtNombreRep, txtDescripcionRep, txtPrecioRep);
+    }
+    
+    private void cancelarUtilizado() {
+        formularioUtilizado.setVisible(false);
+        tableUtilizados.clearSelection();
+        limpiar(txtIdOrdenUti, txtIdRepuestoUti, txtCantidadUti);
+    }
+    
+    private void cancelarAbastecimiento() {
+        formularioAbastecimiento.setVisible(false);
+        tableAbastecimiento.clearSelection();
+        limpiar(txtIdRepuestoAba, txtCantidadAba);
+    }
+    
+    private void cancelarServicio() {
+        formularioServicio.setVisible(false);
+        tableServicios.clearSelection();
+        limpiar(txtDescripcionSer, txtCostoSer);
+    }
+    
+    private void cancelarRealizado() {
+        formularioRealizado.setVisible(false);
+        tableRealizados.clearSelection();
+        limpiar(txtIdOrdenRea, txtIdServicioRea, txtCantidadRea);
+    }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -352,9 +603,9 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         labelNombreMec = new swingx.RoundLabel();
         txtNombreMec = new javax.swing.JTextField();
         labelEspecialidadMec = new swingx.RoundLabel();
-        TxtEspecialidadMec = new javax.swing.JTextField();
+        txtEspecialidadMec = new javax.swing.JTextField();
         labelTelefonoMec = new swingx.RoundLabel();
-        TxtTelefonoMec = new javax.swing.JTextField();
+        txtTelefonoMec = new javax.swing.JTextField();
         labelMecanico = new swingx.RoundLabel();
         btnLimpiarMec = new swingx.RoundButton();
         btnGuardarMec = new swingx.RoundButton();
@@ -1534,19 +1785,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableClientes.setForeground(new java.awt.Color(51, 51, 51));
         tableClientes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "ID Cliente", "Nombre", "Dirección", "Teléfono"
@@ -1568,6 +1807,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableClientes.setPreferredSize(new java.awt.Dimension(820, 500));
         tableClientes.setRowHeight(40);
         tableClientes.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableClientes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableClientesMouseClicked(evt);
+            }
+        });
         scrollClientes.setViewportView(tableClientes);
 
         formularioCliente.setBackground(new java.awt.Color(255, 255, 255));
@@ -1771,19 +2015,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableVehiculos.setForeground(new java.awt.Color(51, 51, 51));
         tableVehiculos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID Vehículo", "ID Cliente", "Placa", "Marca", "Modelo", "Año", "Color"
@@ -1805,10 +2037,12 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableVehiculos.setPreferredSize(new java.awt.Dimension(820, 500));
         tableVehiculos.setRowHeight(40);
         tableVehiculos.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableVehiculos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableVehiculosMouseClicked(evt);
+            }
+        });
         scrollVehiculos.setViewportView(tableVehiculos);
-        if (tableVehiculos.getColumnModel().getColumnCount() > 0) {
-            tableVehiculos.getColumnModel().getColumn(6).setHeaderValue("Color");
-        }
 
         formularioVehiculo.setBackground(new java.awt.Color(255, 255, 255));
         formularioVehiculo.setRoundBottomLeft(20);
@@ -2091,9 +2325,9 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         labelEspecialidadMec.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
         labelEspecialidadMec.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
 
-        TxtEspecialidadMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
-        TxtEspecialidadMec.setForeground(new java.awt.Color(51, 51, 51));
-        TxtEspecialidadMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
+        txtEspecialidadMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
+        txtEspecialidadMec.setForeground(new java.awt.Color(51, 51, 51));
+        txtEspecialidadMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
 
         labelTelefonoMec.setBackground(new java.awt.Color(255, 255, 255));
         labelTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
@@ -2102,9 +2336,9 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         labelTelefonoMec.setFont(new java.awt.Font("Tw Cen MT", 1, 14)); // NOI18N
         labelTelefonoMec.setHorizontalTextPosition(javax.swing.SwingConstants.LEFT);
 
-        TxtTelefonoMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
-        TxtTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
-        TxtTelefonoMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
+        txtTelefonoMec.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
+        txtTelefonoMec.setForeground(new java.awt.Color(51, 51, 51));
+        txtTelefonoMec.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
 
         labelMecanico.setBackground(new java.awt.Color(0, 0, 153));
         labelMecanico.setForeground(new java.awt.Color(255, 255, 255));
@@ -2192,12 +2426,12 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                             .addComponent(labelNombreMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(formularioMecanicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(TxtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(txtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(labelEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(formularioMecanicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(labelTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(TxtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                            .addComponent(txtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         formularioMecanicoLayout.setVerticalGroup(
@@ -2214,11 +2448,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                     .addGroup(formularioMecanicoLayout.createSequentialGroup()
                         .addComponent(labelEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TxtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtEspecialidadMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(formularioMecanicoLayout.createSequentialGroup()
                         .addComponent(labelTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(TxtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(txtTelefonoMec, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addGap(18, 18, 18)
                 .addGroup(formularioMecanicoLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(btnLimpiarMec, javax.swing.GroupLayout.PREFERRED_SIZE, 45, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -2234,19 +2468,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableMecanicos.setForeground(new java.awt.Color(51, 51, 51));
         tableMecanicos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
                 "ID Mecánico", "Nombre", "Especialidad", "Teléfono"
@@ -2268,6 +2490,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableMecanicos.setPreferredSize(new java.awt.Dimension(820, 500));
         tableMecanicos.setRowHeight(40);
         tableMecanicos.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableMecanicos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableMecanicosMouseClicked(evt);
+            }
+        });
         scrollMecanicos.setViewportView(tableMecanicos);
 
         javax.swing.GroupLayout panelMecanicoLayout = new javax.swing.GroupLayout(panelMecanico);
@@ -2472,19 +2699,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableOrdenes.setForeground(new java.awt.Color(51, 51, 51));
         tableOrdenes.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null},
-                {null, null, null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID Orden", "ID Vehículo", "ID Mecánico", "Descripción", "Fecha Creación", "Fecha Final", "Estado", "Total"
@@ -2506,6 +2721,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableOrdenes.setPreferredSize(new java.awt.Dimension(820, 500));
         tableOrdenes.setRowHeight(40);
         tableOrdenes.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableOrdenes.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableOrdenesMouseClicked(evt);
+            }
+        });
         scrollOrdenes.setViewportView(tableOrdenes);
 
         comboFiltroOrden.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
@@ -2526,11 +2746,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOrdenLayout.createSequentialGroup()
                 .addContainerGap(19, Short.MAX_VALUE)
                 .addGroup(panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(scrollOrdenes, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelOrdenLayout.createSequentialGroup()
                         .addGap(2, 2, 2)
-                        .addComponent(formularioOrden, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(formularioOrden, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(scrollOrdenes, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 830, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(22, 22, 22))
         );
         panelOrdenLayout.setVerticalGroup(
@@ -2538,8 +2758,8 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOrdenLayout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(scrollOrdenes, javax.swing.GroupLayout.DEFAULT_SIZE, 271, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(scrollOrdenes, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
                 .addComponent(formularioOrden, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(24, 24, 24))
@@ -2562,19 +2782,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableRepuestos.setForeground(new java.awt.Color(51, 51, 51));
         tableRepuestos.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null},
-                {null, null, null, null, null}
+
             },
             new String [] {
                 "ID Repuesto", "Nombre", "Descripción", "Precio", "Existencia"
@@ -2596,6 +2804,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableRepuestos.setPreferredSize(new java.awt.Dimension(820, 500));
         tableRepuestos.setRowHeight(40);
         tableRepuestos.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableRepuestos.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableRepuestosMouseClicked(evt);
+            }
+        });
         scrollRepuestos.setViewportView(tableRepuestos);
 
         formularioRepuesto.setBackground(new java.awt.Color(255, 255, 255));
@@ -2965,19 +3178,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableUtilizados.setForeground(new java.awt.Color(51, 51, 51));
         tableUtilizados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID Repuesto Utilizado", "ID Orden", "ID Repuesto", "Cantidad", "Precio", "Subtotal"
@@ -2999,6 +3200,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableUtilizados.setPreferredSize(new java.awt.Dimension(820, 500));
         tableUtilizados.setRowHeight(40);
         tableUtilizados.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableUtilizados.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableUtilizadosMouseClicked(evt);
+            }
+        });
         scrollUtilizados.setViewportView(tableUtilizados);
 
         javax.swing.GroupLayout panelUtilizadoLayout = new javax.swing.GroupLayout(panelUtilizado);
@@ -3039,26 +3245,14 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableAbastecimiento.setForeground(new java.awt.Color(51, 51, 51));
         tableAbastecimiento.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
-                "ID Abastecimiento", "ID Repuesto", "Cantidad"
+                "ID Abastecimiento", "ID Repuesto", "Cantidad", "Fecha"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false
+                false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -3073,6 +3267,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableAbastecimiento.setPreferredSize(new java.awt.Dimension(820, 500));
         tableAbastecimiento.setRowHeight(40);
         tableAbastecimiento.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableAbastecimiento.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableAbastecimientoMouseClicked(evt);
+            }
+        });
         scrollAbastecimiento.setViewportView(tableAbastecimiento);
 
         formularioAbastecimiento.setBackground(new java.awt.Color(255, 255, 255));
@@ -3256,19 +3455,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableServicios.setForeground(new java.awt.Color(51, 51, 51));
         tableServicios.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null},
-                {null, null, null}
+
             },
             new String [] {
                 "ID Servicio", "Descripción", "Costo de Mano de Obra"
@@ -3290,6 +3477,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableServicios.setPreferredSize(new java.awt.Dimension(820, 500));
         tableServicios.setRowHeight(40);
         tableServicios.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableServicios.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableServiciosMouseClicked(evt);
+            }
+        });
         scrollServicios.setViewportView(tableServicios);
 
         formularioServicio.setBackground(new java.awt.Color(255, 255, 255));
@@ -3636,19 +3828,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableRealizados.setForeground(new java.awt.Color(51, 51, 51));
         tableRealizados.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null},
-                {null, null, null, null, null, null}
+
             },
             new String [] {
                 "ID Servicio Realizado", "ID Orden", "ID Servicio", "Cantidad", "Precio", "Subtotal"
@@ -3670,6 +3850,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         tableRealizados.setPreferredSize(new java.awt.Dimension(820, 500));
         tableRealizados.setRowHeight(40);
         tableRealizados.setSelectionBackground(new java.awt.Color(255, 255, 204));
+        tableRealizados.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                tableRealizadosMouseClicked(evt);
+            }
+        });
         scrollRealizados.setViewportView(tableRealizados);
 
         javax.swing.GroupLayout panelRealizadoLayout = new javax.swing.GroupLayout(panelRealizado);
@@ -3936,7 +4121,26 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarCliMouseExited
 
     private void btnGuardarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCliActionPerformed
-        // TODO add your handling code here:
+        if (tableClientes.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String nombre = txtNombreCli.getText().trim();
+        String direccion = txtDireccionCli.getText().trim();
+        String telefono = txtTelefonoCli.getText().trim();
+
+        if (nombre.isEmpty() || direccion.isEmpty() || telefono.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            String mensaje = controladorCli.modificar(idSeleccionado(tableClientes), nombre, direccion, telefono);
+            aviso(mensaje);
+            if (mensaje.startsWith("Modificado")) {
+                cancelarCliente();
+                mostrarClientes();
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarCliActionPerformed
 
     private void btnLimpiarCliMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarCliMouseEntered
@@ -3948,7 +4152,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarCliMouseExited
 
     private void btnLimpiarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarCliActionPerformed
-        // TODO add your handling code here:
+        cancelarCliente();
     }//GEN-LAST:event_btnLimpiarCliActionPerformed
 
     private void btnGuardarVehMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarVehMouseEntered
@@ -3960,7 +4164,35 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarVehMouseExited
 
     private void btnGuardarVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarVehActionPerformed
-        // TODO add your handling code here:
+        if (tableVehiculos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String idClienteTexto = txtIdClienteVeh.getText().trim();
+        String placa = txtPlacaVeh.getText().trim();
+        String marca = txtMarcaVeh.getText().trim();
+        String modelo = txtModeloVeh.getText().trim();
+        String anioTexto = txtAnioVeh.getText().trim();
+        String color = txtColorVeh.getText().trim();
+
+        if (idClienteTexto.isEmpty() || placa.isEmpty() || marca.isEmpty() || modelo.isEmpty() || anioTexto.isEmpty() || color.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                int idClienteNum = Integer.parseInt(idClienteTexto);
+                int anioNum = Integer.parseInt(anioTexto);
+                String mensaje = controladorVeh.modificar(idSeleccionado(tableVehiculos), idClienteNum, placa, marca, modelo, anioNum, color);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarVehiculo();
+                    mostrarVehiculos();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("El ID de cliente y el año deben ser números");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarVehActionPerformed
 
     private void btnLimpiarVehMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarVehMouseEntered
@@ -3972,7 +4204,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarVehMouseExited
 
     private void btnLimpiarVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarVehActionPerformed
-        // TODO add your handling code here:
+        cancelarVehiculo();
     }//GEN-LAST:event_btnLimpiarVehActionPerformed
 
     private void btnGuardarMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarMecMouseEntered
@@ -3984,7 +4216,26 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarMecMouseExited
 
     private void btnGuardarMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarMecActionPerformed
-        // TODO add your handling code here:
+        if (tableMecanicos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String nombre = txtNombreMec.getText().trim();
+        String especialidad = txtEspecialidadMec.getText().trim();
+        String telefono = txtTelefonoMec.getText().trim();
+
+        if (nombre.isEmpty() || especialidad.isEmpty() || telefono.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            String mensaje = controladorMec.modificar(idSeleccionado(tableMecanicos), nombre, especialidad, telefono);
+            aviso(mensaje);
+            if (mensaje.startsWith("Modificado")) {
+                cancelarMecanico();
+                mostrarMecanicos();
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarMecActionPerformed
 
     private void btnLimpiarMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarMecMouseEntered
@@ -3996,7 +4247,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarMecMouseExited
 
     private void btnLimpiarMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarMecActionPerformed
-        // TODO add your handling code here:
+        cancelarMecanico();
     }//GEN-LAST:event_btnLimpiarMecActionPerformed
 
     private void btnGuardarOrdMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarOrdMouseEntered
@@ -4008,7 +4259,35 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarOrdMouseExited
 
     private void btnGuardarOrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarOrdActionPerformed
-        // TODO add your handling code here:
+        if (tableOrdenes.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String idVehiculoTexto = txtIdVehiculoOrd.getText().trim();
+        String idMecanicoTexto = txtIdMecanicoOrd.getText().trim();
+        String descripcion = txtDescripcionOrd.getText().trim();
+
+        if (idVehiculoTexto.isEmpty() || idMecanicoTexto.isEmpty() || descripcion.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                int idVehiculoNum = Integer.parseInt(idVehiculoTexto);
+                int idMecanicoNum = Integer.parseInt(idMecanicoTexto);
+                int id = idSeleccionado(tableOrdenes);
+                String mensaje = controladorOrd.modificar(id, idVehiculoNum, idMecanicoNum, descripcion);
+                if (mensaje.startsWith("Modificado") && comboEstado.getSelectedIndex() > 0) {
+                    mensaje = controladorOrd.cambiarEstado(id, String.valueOf(comboEstado.getSelectedItem()));
+                }
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarOrden();
+                    mostrarOrdenes();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("Los ID de vehículo y mecánico deben ser números");
+            }
+        }
     }//GEN-LAST:event_btnGuardarOrdActionPerformed
 
     private void btnLimpiarOrdMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarOrdMouseEntered
@@ -4020,7 +4299,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarOrdMouseExited
 
     private void btnLimpiarOrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarOrdActionPerformed
-        // TODO add your handling code here:
+        cancelarOrden();
     }//GEN-LAST:event_btnLimpiarOrdActionPerformed
 
     private void btnGuardarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarRepMouseEntered
@@ -4032,7 +4311,31 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarRepMouseExited
 
     private void btnGuardarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarRepActionPerformed
-        // TODO add your handling code here:
+        if (tableRepuestos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String nombre = txtNombreRep.getText().trim();
+        String descripcion = txtDescripcionRep.getText().trim();
+        String precioTexto = txtPrecioRep.getText().trim();
+
+        if (nombre.isEmpty() || descripcion.isEmpty() || precioTexto.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                double precioNum = Double.parseDouble(precioTexto);
+                String mensaje = controladorRep.modificar(idSeleccionado(tableRepuestos), nombre, descripcion, precioNum);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarRepuesto();
+                    mostrarRepuestos();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("El precio debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarRepActionPerformed
 
     private void btnLimpiarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarRepMouseEntered
@@ -4044,7 +4347,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarRepMouseExited
 
     private void btnLimpiarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarRepActionPerformed
-        // TODO add your handling code here:
+        cancelarRepuesto();
     }//GEN-LAST:event_btnLimpiarRepActionPerformed
 
     private void btnGuardarUtiMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarUtiMouseEntered
@@ -4056,7 +4359,29 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarUtiMouseExited
 
     private void btnGuardarUtiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarUtiActionPerformed
-        // TODO add your handling code here:
+        if (tableUtilizados.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String cantidadTexto = txtCantidadUti.getText().trim();
+
+        if (cantidadTexto.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorUti.modificar(idSeleccionado(tableUtilizados), cantidadNum);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarUtilizado();
+                    mostrarUtilizados();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("La cantidad debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarUtiActionPerformed
 
     private void btnLimpiarUtiMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarUtiMouseEntered
@@ -4068,7 +4393,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarUtiMouseExited
 
     private void btnLimpiarUtiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarUtiActionPerformed
-        // TODO add your handling code here:
+        cancelarUtilizado();
     }//GEN-LAST:event_btnLimpiarUtiActionPerformed
 
     private void btnGuardarAbaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarAbaMouseEntered
@@ -4080,7 +4405,29 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarAbaMouseExited
 
     private void btnGuardarAbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarAbaActionPerformed
-        // TODO add your handling code here:
+        if (tableAbastecimiento.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String cantidadTexto = txtCantidadAba.getText().trim();
+
+        if (cantidadTexto.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorAba.modificar(idSeleccionado(tableAbastecimiento), cantidadNum);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarAbastecimiento();
+                    mostrarAbastecimientos();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("La cantidad debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarAbaActionPerformed
 
     private void btnLimpiarAbaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarAbaMouseEntered
@@ -4092,7 +4439,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarAbaMouseExited
 
     private void btnLimpiarAbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarAbaActionPerformed
-        // TODO add your handling code here:
+        cancelarAbastecimiento();
     }//GEN-LAST:event_btnLimpiarAbaActionPerformed
 
     private void btnGuardarSerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarSerMouseEntered
@@ -4104,7 +4451,30 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarSerMouseExited
 
     private void btnGuardarSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarSerActionPerformed
-        // TODO add your handling code here:
+        if (tableServicios.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String descripcion = txtDescripcionSer.getText().trim();
+        String costoTexto = txtCostoSer.getText().trim();
+
+        if (descripcion.isEmpty() || costoTexto.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                double costoNum = Double.parseDouble(costoTexto);
+                String mensaje = controladorSer.modificar(idSeleccionado(tableServicios), descripcion, costoNum);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarServicio();
+                    mostrarServicios();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("El costo debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarSerActionPerformed
 
     private void btnLimpiarSerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarSerMouseEntered
@@ -4116,7 +4486,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarSerMouseExited
 
     private void btnLimpiarSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarSerActionPerformed
-        // TODO add your handling code here:
+        cancelarServicio();
     }//GEN-LAST:event_btnLimpiarSerActionPerformed
 
     private void btnGuardarReaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnGuardarReaMouseEntered
@@ -4128,7 +4498,29 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarReaMouseExited
 
     private void btnGuardarReaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarReaActionPerformed
-        // TODO add your handling code here:
+        if (tableRealizados.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para modificar");
+            return;
+        }
+
+        String cantidadTexto = txtCantidadRea.getText().trim();
+
+        if (cantidadTexto.isEmpty()) {
+            aviso("Complete los campos vacíos");
+        } else {
+            try {
+                int cantidadNum = Integer.parseInt(cantidadTexto);
+                String mensaje = controladorRea.modificar(idSeleccionado(tableRealizados), cantidadNum);
+                aviso(mensaje);
+                if (mensaje.startsWith("Modificado")) {
+                    cancelarRealizado();
+                    mostrarRealizados();
+                }
+            } catch (NumberFormatException ex) {
+                aviso("La cantidad debe ser un número");
+            }
+        }
+
     }//GEN-LAST:event_btnGuardarReaActionPerformed
 
     private void btnLimpiarReaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnLimpiarReaMouseEntered
@@ -4140,7 +4532,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnLimpiarReaMouseExited
 
     private void btnLimpiarReaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLimpiarReaActionPerformed
-        // TODO add your handling code here:
+        cancelarRealizado();
     }//GEN-LAST:event_btnLimpiarReaActionPerformed
 
     private void btnEliminarCliMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarCliMouseEntered
@@ -4152,7 +4544,21 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarCliMouseExited
 
     private void btnEliminarCliActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarCliActionPerformed
-        // TODO add your handling code here:
+        if (tableClientes.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorCli.eliminar(idSeleccionado(tableClientes));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarCliente();
+                mostrarClientes();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
     }//GEN-LAST:event_btnEliminarCliActionPerformed
 
     private void btnEliminarVehMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarVehMouseEntered
@@ -4164,7 +4570,22 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarVehMouseExited
 
     private void btnEliminarVehActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarVehActionPerformed
-        // TODO add your handling code here:
+        if (tableVehiculos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorVeh.eliminar(idSeleccionado(tableVehiculos));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarVehiculo();
+                mostrarVehiculos();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
+
     }//GEN-LAST:event_btnEliminarVehActionPerformed
 
     private void btnEliminarMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarMecMouseEntered
@@ -4176,7 +4597,22 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarMecMouseExited
 
     private void btnEliminarMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarMecActionPerformed
-        // TODO add your handling code here:
+        if (tableMecanicos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorMec.eliminar(idSeleccionado(tableMecanicos));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarMecanico();
+                mostrarMecanicos();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
+
     }//GEN-LAST:event_btnEliminarMecActionPerformed
 
     private void comboFiltroOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFiltroOrdenActionPerformed
@@ -4220,7 +4656,22 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarRepMouseExited
 
     private void btnEliminarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarRepActionPerformed
-        // TODO add your handling code here:
+        if (tableRepuestos.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorRep.eliminar(idSeleccionado(tableRepuestos));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarRepuesto();
+                mostrarRepuestos();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
+
     }//GEN-LAST:event_btnEliminarRepActionPerformed
 
     private void btnExportarOrdEstMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdEstMouseEntered
@@ -4316,7 +4767,21 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarUtiMouseExited
 
     private void btnEliminarUtiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarUtiActionPerformed
-        // TODO add your handling code here:
+        if (tableUtilizados.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorUti.eliminar(idSeleccionado(tableUtilizados));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarUtilizado();
+                mostrarUtilizados();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
     }//GEN-LAST:event_btnEliminarUtiActionPerformed
 
     private void btnEliminarAbaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarAbaMouseEntered
@@ -4328,7 +4793,21 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarAbaMouseExited
 
     private void btnEliminarAbaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarAbaActionPerformed
-        // TODO add your handling code here:
+        if (tableAbastecimiento.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorAba.eliminar(idSeleccionado(tableAbastecimiento));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarAbastecimiento();
+                mostrarAbastecimientos();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
     }//GEN-LAST:event_btnEliminarAbaActionPerformed
 
     private void btnEliminarSerMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarSerMouseEntered
@@ -4340,7 +4819,22 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarSerMouseExited
 
     private void btnEliminarSerActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarSerActionPerformed
-        // TODO add your handling code here:
+        if (tableServicios.getSelectedRow() == -1) {
+            aviso("Seleccione una fila para eliminar");
+            return;
+        }
+        int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+        if (confirmar == JOptionPane.YES_OPTION) {
+            String mensaje = controladorSer.eliminar(idSeleccionado(tableServicios));
+            aviso(mensaje);
+            if (mensaje.startsWith("Eliminado")) {
+                cancelarServicio();
+                mostrarServicios();
+            }
+        } else {
+            aviso("El registro no fue eliminado");
+        }
+
     }//GEN-LAST:event_btnEliminarSerActionPerformed
 
     private void btnEliminarReaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarReaMouseEntered
@@ -4352,8 +4846,147 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarReaMouseExited
 
     private void btnEliminarReaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEliminarReaActionPerformed
-        // TODO add your handling code here:
+    if (tableRealizados.getSelectedRow() == -1) {
+        aviso("Seleccione una fila para eliminar");
+        return;
+    }
+    int confirmar = JOptionPane.showConfirmDialog(this, "¿Está seguro de que desea eliminar este registro?", "Confirmar la eliminación", JOptionPane.YES_NO_OPTION);
+    if (confirmar == JOptionPane.YES_OPTION) {
+        String mensaje = controladorRea.eliminar(idSeleccionado(tableRealizados));
+        aviso(mensaje);
+        if (mensaje.startsWith("Eliminado")) {
+            cancelarRealizado();
+            mostrarRealizados();
+        }
+    } else {
+        aviso("El registro no fue eliminado");
+    }
+
     }//GEN-LAST:event_btnEliminarReaActionPerformed
+
+    private void tableClientesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableClientesMouseClicked
+        int fila = tableClientes.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelCliente.setText("Cliente ID: " + tableClientes.getValueAt(fila, 0));
+        txtNombreCli.setText(String.valueOf(tableClientes.getValueAt(fila, 1)));
+        txtDireccionCli.setText(String.valueOf(tableClientes.getValueAt(fila, 2)));
+        txtTelefonoCli.setText(String.valueOf(tableClientes.getValueAt(fila, 3)));
+        formularioCliente.setVisible(true);
+    }//GEN-LAST:event_tableClientesMouseClicked
+
+    private void tableVehiculosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableVehiculosMouseClicked
+        int fila = tableVehiculos.getSelectedRow();
+            if (fila == -1) {
+                return;
+            }
+            labelVehiculo.setText("Vehiculo ID: " + tableVehiculos.getValueAt(fila, 0));
+            txtIdClienteVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 1)));
+            txtPlacaVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 2)));
+            txtMarcaVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 3)));
+            txtModeloVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 4)));
+            txtAnioVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 5)));
+            txtColorVeh.setText(String.valueOf(tableVehiculos.getValueAt(fila, 6)));
+            formularioVehiculo.setVisible(true);
+    }//GEN-LAST:event_tableVehiculosMouseClicked
+
+    private void tableMecanicosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableMecanicosMouseClicked
+        int fila = tableMecanicos.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelMecanico.setText("Mecanico ID: " + tableMecanicos.getValueAt(fila, 0));
+        txtNombreMec.setText(String.valueOf(tableMecanicos.getValueAt(fila, 1)));
+        txtEspecialidadMec.setText(String.valueOf(tableMecanicos.getValueAt(fila, 2)));
+        txtTelefonoMec.setText(String.valueOf(tableMecanicos.getValueAt(fila, 3)));
+        formularioMecanico.setVisible(true);
+    }//GEN-LAST:event_tableMecanicosMouseClicked
+
+    private void tableOrdenesMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableOrdenesMouseClicked
+        int fila = tableOrdenes.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        String estado = String.valueOf(tableOrdenes.getValueAt(fila, 6));
+        boolean editable = estado.equals("PENDIENTE") || estado.equals("EN PROCESO");
+        labelOrden.setText("Orden de Trabajo ID: " + tableOrdenes.getValueAt(fila, 0));
+        txtIdVehiculoOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 1)));
+        txtIdMecanicoOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 2)));
+        txtDescripcionOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 3)));
+        txtIdVehiculoOrd.setEditable(estado.equals("PENDIENTE"));
+        txtIdMecanicoOrd.setEditable(editable);
+        txtDescripcionOrd.setEditable(editable);
+        btnGuardarOrd.setEnabled(editable);
+        if (estado.equals("PENDIENTE")) {
+            comboEstado.setModel(new DefaultComboBoxModel<>(new String[]{"PENDIENTE", "INICIAR", "CANCELAR"}));
+        } else if (estado.equals("EN PROCESO")) {
+            comboEstado.setModel(new DefaultComboBoxModel<>(new String[]{"EN PROCESO", "FINALIZAR", "CANCELAR"}));
+        } else {
+            comboEstado.setModel(new DefaultComboBoxModel<>(new String[]{estado}));
+        }
+        formularioOrden.setVisible(true);
+
+    }//GEN-LAST:event_tableOrdenesMouseClicked
+
+    private void tableRepuestosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableRepuestosMouseClicked
+        int fila = tableRepuestos.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelRepuesto.setText("Repuesto ID: " + tableRepuestos.getValueAt(fila, 0));
+        txtNombreRep.setText(String.valueOf(tableRepuestos.getValueAt(fila, 1)));
+        txtDescripcionRep.setText(String.valueOf(tableRepuestos.getValueAt(fila, 2)));
+        txtPrecioRep.setText(String.valueOf(tableRepuestos.getValueAt(fila, 3)));
+        formularioRepuesto.setVisible(true);
+    }//GEN-LAST:event_tableRepuestosMouseClicked
+
+    private void tableUtilizadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableUtilizadosMouseClicked
+        int fila = tableUtilizados.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelUtilizado.setText("Repuesto Utilizado ID: " + tableUtilizados.getValueAt(fila, 0));
+        txtIdOrdenUti.setText(String.valueOf(tableUtilizados.getValueAt(fila, 1)));
+        txtIdRepuestoUti.setText(String.valueOf(tableUtilizados.getValueAt(fila, 2)));
+        txtCantidadUti.setText(String.valueOf(tableUtilizados.getValueAt(fila, 3)));
+        formularioUtilizado.setVisible(true);
+
+    }//GEN-LAST:event_tableUtilizadosMouseClicked
+
+    private void tableAbastecimientoMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableAbastecimientoMouseClicked
+        int fila = tableAbastecimiento.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelAbastecimiento.setText("Abastecimiento ID: " + tableAbastecimiento.getValueAt(fila, 0));
+        txtIdRepuestoAba.setText(String.valueOf(tableAbastecimiento.getValueAt(fila, 1)));
+        txtCantidadAba.setText(String.valueOf(tableAbastecimiento.getValueAt(fila, 2)));
+        formularioAbastecimiento.setVisible(true);
+    }//GEN-LAST:event_tableAbastecimientoMouseClicked
+
+    private void tableServiciosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableServiciosMouseClicked
+        int fila = tableServicios.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelServicio.setText("Servicio ID: " + tableServicios.getValueAt(fila, 0));
+        txtDescripcionSer.setText(String.valueOf(tableServicios.getValueAt(fila, 1)));
+        txtCostoSer.setText(String.valueOf(tableServicios.getValueAt(fila, 2)));
+        formularioServicio.setVisible(true);
+    }//GEN-LAST:event_tableServiciosMouseClicked
+
+    private void tableRealizadosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableRealizadosMouseClicked
+        int fila = tableRealizados.getSelectedRow();
+        if (fila == -1) {
+            return;
+        }
+        labelRealizado.setText("Servicio Realizado ID: " + tableRealizados.getValueAt(fila, 0));
+        txtIdOrdenRea.setText(String.valueOf(tableRealizados.getValueAt(fila, 1)));
+        txtIdServicioRea.setText(String.valueOf(tableRealizados.getValueAt(fila, 2)));
+        txtCantidadRea.setText(String.valueOf(tableRealizados.getValueAt(fila, 3)));
+        formularioRealizado.setVisible(true);
+    }//GEN-LAST:event_tableRealizadosMouseClicked
 
 
     public static void main(String args[]) {
@@ -4389,8 +5022,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField TxtEspecialidadMec;
-    private javax.swing.JTextField TxtTelefonoMec;
     private swingx.RoundButton btnAbastecimiento;
     private swingx.RoundButton btnBuscarFecha;
     private swingx.RoundButton btnBuscarMecanico;
@@ -4561,6 +5192,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private javax.swing.JTextField txtDescripcionRep;
     private javax.swing.JTextField txtDescripcionSer;
     private javax.swing.JTextField txtDireccionCli;
+    private javax.swing.JTextField txtEspecialidadMec;
     private javax.swing.JTextField txtFechaFinal;
     private javax.swing.JTextField txtFechaInicio;
     private javax.swing.JTextField txtIdClienteVeh;
@@ -4579,5 +5211,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private javax.swing.JTextField txtPlacaVeh;
     private javax.swing.JTextField txtPrecioRep;
     private javax.swing.JTextField txtTelefonoCli;
+    private javax.swing.JTextField txtTelefonoMec;
     // End of variables declaration//GEN-END:variables
 }
