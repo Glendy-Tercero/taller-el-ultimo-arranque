@@ -4,6 +4,7 @@ import controller.AbastecimientoController;
 import controller.ClienteController;
 import controller.MecanicoController;
 import controller.OrdenController;
+import controller.ReporteController;
 import controller.RepuestoController;
 import controller.RepuestoUtilizadoController;
 import controller.ServicioController;
@@ -60,24 +61,18 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private AbastecimientoController controladorAba = new AbastecimientoController();
     private ServicioController controladorSer = new ServicioController();
     private ServicioRealizadoController controladorRea = new ServicioRealizadoController();
+    private final ReporteController controladorReporte = new ReporteController();
 
 
     public ConsultarRegistro() {
         initComponents();
+        setLocationRelativeTo(null);
         aparecer();
         tablas();
         panels();
         botones();
         iniciarMenu();
-        mostrarClientes();
-        mostrarVehiculos();
-        mostrarMecanicos();
-        mostrarOrdenes();
-        mostrarRepuestos();
-        mostrarUtilizados();
-        mostrarAbastecimientos();
-        mostrarServicios();
-        mostrarRealizados();
+        mostrar(0);
     }
     
     private void aparecer() {
@@ -113,7 +108,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         anchos(tableMecanicos, scrollMecanicos, 30, 100, 200, 80);
         
         estilizar(tableOrdenes, scrollOrdenes);
-        anchos(tableOrdenes, scrollOrdenes, 30, 30, 30, 100, 50, 50, 50, 50);
+        anchos(tableOrdenes, scrollOrdenes, 30, 30, 30, 150, 50, 50, 50, 30);
         estilizarCombo(comboEstado);
         estilizarCombo(comboFiltroOrden);
         estilizarCombo(comboBuscarEstado);
@@ -300,6 +295,18 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             } else {
                 filtroOrden(-1);
             }
+            
+         switch (indice) {
+            case 0: mostrarClientes(); break;
+            case 1: mostrarVehiculos(); break;
+            case 2: mostrarMecanicos(); break;
+            case 3: mostrarOrdenes(); break;
+            case 4: mostrarRepuestos(); break;
+            case 5: mostrarUtilizados(); break;
+            case 6: mostrarAbastecimientos(); break;
+            case 7: mostrarServicios(); break;
+            case 8: mostrarRealizados(); break;
+        }
     }
     
     
@@ -500,6 +507,71 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         limpiar(txtIdOrdenRea, txtIdServicioRea, txtCantidadRea);
     }
     
+    private void cargarOrdenes(
+         java.util.List<OrdenModel> ordenes) {
+
+        DefaultTableModel tabla = (DefaultTableModel) tableOrdenes.getModel();
+        tabla.setRowCount(0);
+        for (OrdenModel o : ordenes) {
+            tabla.addRow(new Object[]{
+                o.getIdOrden(),
+                o.getIdVehiculo(),
+                o.getIdMecanico(),
+                o.getDescripcion(),
+                o.getFechaCreacion(),
+                o.getFechaFinal(),
+                o.getEstado(),
+                o.getTotal()
+            });
+        }
+    }
+    
+    private void cargarRepuestos(
+        java.util.List<RepuestoModel> repuestos) {
+
+        DefaultTableModel tabla = (DefaultTableModel) tableRepuestos.getModel();
+        tabla.setRowCount(0);
+        for (RepuestoModel r : repuestos) {
+            tabla.addRow(new Object[]{
+                r.getIdRepuesto(),
+                r.getNombre(),
+                r.getDescripcion(),
+                r.getPrecio(),
+                r.getExistencia()
+            });
+        }
+    }
+    
+    private void ejecutarConsulta(RunnableConsulta consulta) {
+        new javax.swing.SwingWorker<Void, Void>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                consulta.ejecutar();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    get();
+                } catch (Exception e) {
+                    Throwable causa = e.getCause();
+                    String mensaje = causa != null
+                            ? causa.getMessage() : e.getMessage();
+
+                    javax.swing.JOptionPane.showMessageDialog(
+                            ConsultarRegistro.this,
+                            "Error al consultar la API: " + mensaje);
+                }
+            }
+        }.execute();
+    }
+
+    @FunctionalInterface
+    private interface RunnableConsulta {
+        void ejecutar() throws Exception;
+    }
+
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -1176,9 +1248,14 @@ public class ConsultarRegistro extends javax.swing.JFrame {
 
         comboBuscarEstado.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
         comboBuscarEstado.setForeground(new java.awt.Color(51, 51, 51));
-        comboBuscarEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PENDIENTES", "EN PROGRESO", "FINALIZADAS", "CANCELADAS" }));
+        comboBuscarEstado.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "PENDIENTES", "EN PROCESO", "FINALIZADAS", "CANCELADAS" }));
         comboBuscarEstado.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(229, 229, 229), 3, true));
         comboBuscarEstado.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        comboBuscarEstado.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                comboBuscarEstadoActionPerformed(evt);
+            }
+        });
 
         btnExportarOrdEst.setBackground(new java.awt.Color(0, 0, 153));
         btnExportarOrdEst.setForeground(new java.awt.Color(255, 255, 255));
@@ -4616,11 +4693,36 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEliminarMecActionPerformed
 
     private void comboFiltroOrdenActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFiltroOrdenActionPerformed
-        filtroOrden(comboFiltroOrden.getSelectedIndex());
+        int indice = comboFiltroOrden.getSelectedIndex();
+        filtroOrden(indice);
+
+        if (indice == 0) {
+            mostrarOrdenes();
+        } else if (indice == 1) {
+            comboBuscarEstado.setSelectedIndex(0);
+
+            String seleccion = comboBuscarEstado.getSelectedItem().toString();
+            String estado = switch (seleccion) {
+                case "PENDIENTES" -> "PENDIENTE";
+                default -> null;
+            };
+
+            if (estado != null) {
+                ejecutarConsulta(() ->
+                    cargarOrdenes(controladorReporte.porEstado(estado))
+                );
+            }
+        }
     }//GEN-LAST:event_comboFiltroOrdenActionPerformed
 
     private void comboFiltroRepuestoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboFiltroRepuestoActionPerformed
-        // TODO add your handling code here:
+        String seleccion = comboFiltroRepuesto.getSelectedItem().toString();
+        if ("Todos los repuestos".equals(seleccion)) {
+            mostrarRepuestos();
+        } else if ("Repuestos con bajo inventario".equals(seleccion)) {
+            ejecutarConsulta(() ->
+                    cargarRepuestos(controladorReporte.repuestosBajoInventario()));
+        }
     }//GEN-LAST:event_comboFiltroRepuestoActionPerformed
 
     private void btnImportarCSVMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnImportarCSVMouseEntered
@@ -4695,7 +4797,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuscarPlacaMouseExited
 
     private void btnBuscarPlacaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarPlacaActionPerformed
-        // TODO add your handling code here:
+        String placa = txtBuscarPlaca.getText().trim();
+        if (placa.isEmpty()) {
+            return;
+        }
+        ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porPlaca(placa)));
     }//GEN-LAST:event_btnBuscarPlacaActionPerformed
 
     private void btnExportarOrdPlaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdPlaMouseEntered
@@ -4719,7 +4825,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuscarMecanicoMouseExited
 
     private void btnBuscarMecanicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarMecanicoActionPerformed
-        // TODO add your handling code here:
+        String nombre = txtBuscarMecanico.getText().trim();
+        if (nombre.isEmpty()) {
+            return;
+        }
+        ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porMecanico(nombre)));
     }//GEN-LAST:event_btnBuscarMecanicoActionPerformed
 
     private void btnExportarOrdMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdMecMouseEntered
@@ -4743,7 +4853,17 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnBuscarFechaMouseExited
 
     private void btnBuscarFechaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBuscarFechaActionPerformed
-        // TODO add your handling code here:
+        String inicio = txtFechaInicio.getText().trim();
+        String fin = txtFechaFinal.getText().trim();
+        try {
+            java.time.LocalDate.parse(inicio);
+            java.time.LocalDate.parse(fin);
+        } catch (java.time.format.DateTimeParseException e) {
+            javax.swing.JOptionPane.showMessageDialog(
+                    this, "Ingresa las fechas en formato yyyy-MM-dd.");
+            return;
+        }
+        ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porFechas(inicio, fin)));
     }//GEN-LAST:event_btnBuscarFechaActionPerformed
 
     private void btnExportarOrdIngMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdIngMouseEntered
@@ -4987,6 +5107,23 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         txtCantidadRea.setText(String.valueOf(tableRealizados.getValueAt(fila, 3)));
         formularioRealizado.setVisible(true);
     }//GEN-LAST:event_tableRealizadosMouseClicked
+
+    private void comboBuscarEstadoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_comboBuscarEstadoActionPerformed
+        String seleccion = comboBuscarEstado.getSelectedItem().toString();
+        String estado = switch (seleccion) {
+            case "PENDIENTES" -> "PENDIENTE";
+            case "EN PROCESO" -> "EN PROCESO";
+            case "FINALIZADAS" -> "FINALIZADA";
+            case "CANCELADAS" -> "CANCELADA";
+            default -> null;
+        };
+
+        if (estado != null) {
+            ejecutarConsulta(() ->
+                cargarOrdenes(controladorReporte.porEstado(estado))
+            );
+        }
+    }//GEN-LAST:event_comboBuscarEstadoActionPerformed
 
 
     public static void main(String args[]) {

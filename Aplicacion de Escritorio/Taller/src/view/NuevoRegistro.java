@@ -39,6 +39,7 @@ public class NuevoRegistro extends javax.swing.JFrame {
     
     public NuevoRegistro() {
         initComponents();
+        setLocationRelativeTo(null);
         aparecer();
         panels();
         botones();
