@@ -159,4 +159,24 @@ public class RepuestoModel {
         }
     }
 
+    public boolean existe() {
+        Connection cx = Conexion.conectar();
+        if (cx == null) {
+            return false;
+        }
+        String sql = "select count(*) from repuesto where lower(nombre) = lower(?)";
+        try (PreparedStatement ps = cx.prepareStatement(sql)) {
+            ps.setString(1, nombre);
+            try (ResultSet rs = ps.executeQuery()) {
+                rs.next();
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(RepuestoModel.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } finally {
+            Conexion.desconectar(cx);
+        }
+    }
+
 }

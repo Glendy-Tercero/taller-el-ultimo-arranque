@@ -37,5 +37,11 @@ public class RepuestoController {
         modelo.setIdRepuesto(id);
         return modelo.eliminar();
     }
+    
+    public boolean existe(String nombre) {
+        modelo = new RepuestoModel();
+        modelo.setNombre(nombre);
+        return modelo.existe();
+    }
 }
 

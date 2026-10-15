@@ -38,4 +38,10 @@ public class OrdenController {
         return modelo.cambiarEstado(accion);
     }
     
+    public String comprobante(int id) {
+        modelo = new OrdenModel();
+        modelo.setIdOrden(id);
+        return modelo.comprobante();
+    }
+    
 }

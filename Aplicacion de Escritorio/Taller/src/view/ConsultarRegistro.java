@@ -12,26 +12,35 @@ import controller.ServicioRealizadoController;
 import controller.VehiculoController;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.geom.RoundRectangle2D;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListCellRenderer;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.Timer;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.plaf.basic.BasicComboBoxUI;
 import javax.swing.plaf.basic.BasicScrollBarUI;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import model.AbastecimientoModel;
 import model.ClienteModel;
 import model.MecanicoModel;
@@ -43,6 +52,8 @@ import model.ServicioRealizadoModel;
 import model.VehiculoModel;
 import swingx.RoundButton;
 import swingx.RoundPanel;
+import util.Exportador;
+import util.Importador;
 
 public class ConsultarRegistro extends javax.swing.JFrame {
 
@@ -141,17 +152,11 @@ public class ConsultarRegistro extends javax.swing.JFrame {
          
          btnImportarCSV.setIconPath("/icon/importar.png", 23);
          btnExportarRep.setIconPath("/icon/exportar.png", 23);
-         
-         btnExportarOrdEst.setIconPath("/icon/exportar.png", 23);
+         btnExportarOrd.setIconPath("/icon/exportar.png", 23);
          
          btnBuscarPlaca.setIconPath("/icon/buscar.png", 25);
-         btnExportarOrdPla.setIconPath("/icon/exportar.png", 23);
-         
          btnBuscarMecanico.setIconPath("/icon/buscar.png", 25);
-         btnExportarOrdMec.setIconPath("/icon/exportar.png", 23);
-         
          btnBuscarFecha.setIconPath("/icon/buscar.png", 25);
-         btnExportarOrdIng.setIconPath("/icon/exportar.png", 23);
          
          btnUtilizado.setVisible(false);
          btnAbastecimiento.setVisible(false);
@@ -571,7 +576,120 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private interface RunnableConsulta {
         void ejecutar() throws Exception;
     }
+    
+    private void exportar(TableModel modelo, String nombreBase) {
+        if (modelo.getRowCount() == 0) {
+            aviso("No hay datos para exportar");
+            return;
+        }
+        String[] formatos = {"CSV", "HTML"};
+        int opcion = JOptionPane.showOptionDialog(this, "Formato de exportación", "Exportar",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.QUESTION_MESSAGE, null, formatos, formatos[0]);
+        if (opcion < 0) {
+            return;
+        }
+        String extension = opcion == 0 ? ".csv" : ".html";
 
+        JFileChooser selector = new JFileChooser();
+        selector.setSelectedFile(new File(nombreBase + extension));
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File archivo = selector.getSelectedFile();
+        if (!archivo.getName().toLowerCase().endsWith(extension)) {
+            archivo = new File(archivo.getParentFile(), archivo.getName() + extension);
+        }
+        if (archivo.exists()) {
+            int reemplazar = JOptionPane.showConfirmDialog(this, "El archivo ya existe. ¿Desea reemplazarlo?",
+                    "Confirmar", JOptionPane.YES_NO_OPTION);
+            if (reemplazar != JOptionPane.YES_OPTION) {
+                return;
+            }
+        }
+        try {
+            if (opcion == 0) {
+                Exportador.aCSV(modelo, archivo);
+            } else {
+                Exportador.aHTML(modelo, archivo, nombreBase.replace("_", " "));
+            }
+            aviso("Archivo guardado");
+        } catch (IOException ex) {
+            aviso("Error al guardar: " + ex.getMessage());
+        }
+    }
+    
+    private int columna(String[] cabecera, String inicio) {
+        for (int i = 0; i < cabecera.length; i++) {
+            if (cabecera[i].toLowerCase().startsWith(inicio)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private String importarRepuestos(ArrayList<String[]> filas) {
+        if (filas.size() < 2) {
+            return "El archivo no tiene datos";
+        }
+        String[] cabecera = filas.get(0);
+        int indiceNombre = columna(cabecera, "nombre");
+        int indiceDescripcion = columna(cabecera, "descrip");
+        int indicePrecio = columna(cabecera, "precio");
+        if (indiceNombre < 0 || indiceDescripcion < 0 || indicePrecio < 0) {
+            return "El archivo debe tener las columnas Nombre, Descripción y Precio";
+        }
+
+        int importados = 0;
+        StringBuilder errores = new StringBuilder();
+        for (int i = 1; i < filas.size(); i++) {
+            String[] fila = filas.get(i);
+            try {
+                String nombre = fila[indiceNombre];
+                String descripcion = fila[indiceDescripcion];
+                double precio = Double.parseDouble(fila[indicePrecio]);
+                if (nombre.isEmpty() || descripcion.isEmpty()) {
+                    errores.append("Línea ").append(i + 1).append(": campos vacíos\n");
+                } else if (controladorRep.existe(nombre)) {
+                    errores.append("Línea ").append(i + 1).append(": el repuesto ya existe\n");
+                } else {
+                    String mensaje = controladorRep.insertar(nombre, descripcion, precio);
+                    if (mensaje.startsWith("Guardado")) {
+                        importados++;
+                    } else {
+                        errores.append("Línea ").append(i + 1).append(": ").append(mensaje).append("\n");
+                    }
+                }
+            } catch (ArrayIndexOutOfBoundsException | NumberFormatException ex) {
+                errores.append("Línea ").append(i + 1).append(": datos inválidos\n");
+            }
+        }
+        return "Importados: " + importados + (errores.length() > 0 ? "\nCon error:\n" + errores : "");
+    }
+
+    private void exportarComprobante(int idOrden) {
+        String comprobante = controladorOrd.comprobante(idOrden);
+        if (comprobante == null) {
+            aviso("No se pudo generar el comprobante");
+            return;
+        }
+        JFileChooser selector = new JFileChooser();
+        selector.setSelectedFile(new File("comprobante_orden_" + idOrden + ".html"));
+        if (selector.showSaveDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        File archivo = selector.getSelectedFile();
+        if (!archivo.getName().toLowerCase().endsWith(".html")) {
+            archivo = new File(archivo.getParentFile(), archivo.getName() + ".html");
+        }
+        try {
+            Files.writeString(archivo.toPath(), comprobante, StandardCharsets.UTF_8);
+            aviso("Comprobante guardado");
+            Desktop.getDesktop().browse(archivo.toURI());
+        } catch (IOException ex) {
+            aviso("Error al guardar: " + ex.getMessage());
+        }
+    }
+    
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
@@ -603,22 +721,18 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         panelBuscaOrdenEst = new swingx.RoundPanel();
         labelTituloOrdEst = new swingx.RoundLabel();
         comboBuscarEstado = new javax.swing.JComboBox<>();
-        btnExportarOrdEst = new swingx.RoundButton();
         panelBuscaOrdenPla = new swingx.RoundPanel();
         labelTituloOrdPla = new swingx.RoundLabel();
         txtBuscarPlaca = new javax.swing.JTextField();
         btnBuscarPlaca = new swingx.RoundButton();
-        btnExportarOrdPla = new swingx.RoundButton();
         panelBuscaOrdenMec = new swingx.RoundPanel();
         labelTituloOrdMec = new swingx.RoundLabel();
         txtBuscarMecanico = new javax.swing.JTextField();
         btnBuscarMecanico = new swingx.RoundButton();
-        btnExportarOrdMec = new swingx.RoundButton();
         panelBuscaOrdenIng = new swingx.RoundPanel();
-        labelTituloOrdMec1 = new swingx.RoundLabel();
+        labelTituloOrdIng = new swingx.RoundLabel();
         txtFechaFinal = new javax.swing.JTextField();
         btnBuscarFecha = new swingx.RoundButton();
-        btnExportarOrdIng = new swingx.RoundButton();
         txtFechaInicio = new javax.swing.JTextField();
         labelNombreRep1 = new swingx.RoundLabel();
         labelNombreRep2 = new swingx.RoundLabel();
@@ -700,6 +814,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         scrollOrdenes = new javax.swing.JScrollPane();
         tableOrdenes = new javax.swing.JTable();
         comboFiltroOrden = new javax.swing.JComboBox<>();
+        btnExportarOrd = new swingx.RoundButton();
         panelRepuesto = new swingx.RoundPanel();
         scrollRepuestos = new javax.swing.JScrollPane();
         tableRepuestos = new javax.swing.JTable();
@@ -1257,46 +1372,25 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             }
         });
 
-        btnExportarOrdEst.setBackground(new java.awt.Color(0, 0, 153));
-        btnExportarOrdEst.setForeground(new java.awt.Color(255, 255, 255));
-        btnExportarOrdEst.setFont(new java.awt.Font("Arial Black", 0, 10)); // NOI18N
-        btnExportarOrdEst.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnExportarOrdEstMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnExportarOrdEstMouseExited(evt);
-            }
-        });
-        btnExportarOrdEst.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarOrdEstActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelBuscaOrdenEstLayout = new javax.swing.GroupLayout(panelBuscaOrdenEst);
         panelBuscaOrdenEst.setLayout(panelBuscaOrdenEstLayout);
         panelBuscaOrdenEstLayout.setHorizontalGroup(
             panelBuscaOrdenEstLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscaOrdenEstLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addGap(20, 20, 20)
                 .addComponent(labelTituloOrdEst, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 179, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 243, Short.MAX_VALUE)
                 .addComponent(comboBuscarEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnExportarOrdEst, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(22, 22, 22))
+                .addGap(17, 17, 17))
         );
         panelBuscaOrdenEstLayout.setVerticalGroup(
             panelBuscaOrdenEstLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBuscaOrdenEstLayout.createSequentialGroup()
-                .addContainerGap(8, Short.MAX_VALUE)
+                .addContainerGap(12, Short.MAX_VALUE)
                 .addGroup(panelBuscaOrdenEstLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnExportarOrdEst, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGroup(panelBuscaOrdenEstLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(labelTituloOrdEst, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(comboBuscarEstado, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(10, 10, 10))
+                    .addComponent(comboBuscarEstado, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(labelTituloOrdEst, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(14, 14, 14))
         );
 
         panelCardBuscador.add(panelBuscaOrdenEst, "card4-1");
@@ -1340,50 +1434,29 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             }
         });
 
-        btnExportarOrdPla.setBackground(new java.awt.Color(0, 0, 153));
-        btnExportarOrdPla.setForeground(new java.awt.Color(255, 255, 255));
-        btnExportarOrdPla.setFont(new java.awt.Font("Arial Black", 0, 10)); // NOI18N
-        btnExportarOrdPla.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnExportarOrdPlaMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnExportarOrdPlaMouseExited(evt);
-            }
-        });
-        btnExportarOrdPla.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarOrdPlaActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelBuscaOrdenPlaLayout = new javax.swing.GroupLayout(panelBuscaOrdenPla);
         panelBuscaOrdenPla.setLayout(panelBuscaOrdenPlaLayout);
         panelBuscaOrdenPlaLayout.setHorizontalGroup(
             panelBuscaOrdenPlaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscaOrdenPlaLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addGap(20, 20, 20)
                 .addComponent(labelTituloOrdPla, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 187, Short.MAX_VALUE)
                 .addComponent(txtBuscarPlaca, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnBuscarPlaca, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnExportarOrdPla, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
+                .addGap(16, 16, 16))
         );
         panelBuscaOrdenPlaLayout.setVerticalGroup(
             panelBuscaOrdenPlaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBuscaOrdenPlaLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelBuscaOrdenPlaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelBuscaOrdenPlaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnExportarOrdPla, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnBuscarPlaca, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnBuscarPlaca, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelBuscaOrdenPlaLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(labelTituloOrdPla, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txtBuscarPlaca, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(14, 14, 14))
+                .addGap(12, 12, 12))
         );
 
         panelCardBuscador.add(panelBuscaOrdenPla, "card4-2");
@@ -1427,50 +1500,29 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             }
         });
 
-        btnExportarOrdMec.setBackground(new java.awt.Color(0, 0, 153));
-        btnExportarOrdMec.setForeground(new java.awt.Color(255, 255, 255));
-        btnExportarOrdMec.setFont(new java.awt.Font("Arial Black", 0, 10)); // NOI18N
-        btnExportarOrdMec.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnExportarOrdMecMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnExportarOrdMecMouseExited(evt);
-            }
-        });
-        btnExportarOrdMec.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarOrdMecActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout panelBuscaOrdenMecLayout = new javax.swing.GroupLayout(panelBuscaOrdenMec);
         panelBuscaOrdenMec.setLayout(panelBuscaOrdenMecLayout);
         panelBuscaOrdenMecLayout.setHorizontalGroup(
             panelBuscaOrdenMecLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscaOrdenMecLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
+                .addGap(19, 19, 19)
                 .addComponent(labelTituloOrdMec, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 125, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 189, Short.MAX_VALUE)
                 .addComponent(txtBuscarMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, 249, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnBuscarMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnExportarOrdMec, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
+                .addGap(15, 15, 15))
         );
         panelBuscaOrdenMecLayout.setVerticalGroup(
             panelBuscaOrdenMecLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelBuscaOrdenMecLayout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelBuscaOrdenMecLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelBuscaOrdenMecLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnExportarOrdMec, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnBuscarMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(btnBuscarMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addGroup(panelBuscaOrdenMecLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                         .addComponent(labelTituloOrdMec, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addComponent(txtBuscarMecanico, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(14, 14, 14))
+                .addGap(12, 12, 12))
         );
 
         panelCardBuscador.add(panelBuscaOrdenMec, "card4-3");
@@ -1483,15 +1535,15 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         panelBuscaOrdenIng.setShadow(true);
         panelBuscaOrdenIng.setShadowSize(2);
 
-        labelTituloOrdMec1.setBackground(new java.awt.Color(255, 204, 0));
-        labelTituloOrdMec1.setForeground(new java.awt.Color(255, 255, 255));
-        labelTituloOrdMec1.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
-        labelTituloOrdMec1.setText("Registros de Ordenes de Trabajo   ");
-        labelTituloOrdMec1.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
-        labelTituloOrdMec1.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        labelTituloOrdMec1.setRoundBottomRight(30);
-        labelTituloOrdMec1.setRoundTopLeft(30);
-        labelTituloOrdMec1.setRoundTopRight(30);
+        labelTituloOrdIng.setBackground(new java.awt.Color(255, 204, 0));
+        labelTituloOrdIng.setForeground(new java.awt.Color(255, 255, 255));
+        labelTituloOrdIng.setHorizontalAlignment(javax.swing.SwingConstants.RIGHT);
+        labelTituloOrdIng.setText("Registros de Ordenes de Trabajo   ");
+        labelTituloOrdIng.setFont(new java.awt.Font("Tw Cen MT", 1, 18)); // NOI18N
+        labelTituloOrdIng.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
+        labelTituloOrdIng.setRoundBottomRight(30);
+        labelTituloOrdIng.setRoundTopLeft(30);
+        labelTituloOrdIng.setRoundTopRight(30);
 
         txtFechaFinal.setFont(new java.awt.Font("Bahnschrift", 0, 12)); // NOI18N
         txtFechaFinal.setForeground(new java.awt.Color(51, 51, 51));
@@ -1511,23 +1563,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         btnBuscarFecha.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnBuscarFechaActionPerformed(evt);
-            }
-        });
-
-        btnExportarOrdIng.setBackground(new java.awt.Color(0, 0, 153));
-        btnExportarOrdIng.setForeground(new java.awt.Color(255, 255, 255));
-        btnExportarOrdIng.setFont(new java.awt.Font("Arial Black", 0, 10)); // NOI18N
-        btnExportarOrdIng.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btnExportarOrdIngMouseEntered(evt);
-            }
-            public void mouseExited(java.awt.event.MouseEvent evt) {
-                btnExportarOrdIngMouseExited(evt);
-            }
-        });
-        btnExportarOrdIng.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnExportarOrdIngActionPerformed(evt);
             }
         });
 
@@ -1554,9 +1589,9 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         panelBuscaOrdenIngLayout.setHorizontalGroup(
             panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelBuscaOrdenIngLayout.createSequentialGroup()
-                .addGap(21, 21, 21)
-                .addComponent(labelTituloOrdMec1, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 18, Short.MAX_VALUE)
+                .addGap(20, 20, 20)
+                .addComponent(labelTituloOrdIng, javax.swing.GroupLayout.PREFERRED_SIZE, 308, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 78, Short.MAX_VALUE)
                 .addComponent(labelNombreRep1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(txtFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -1566,9 +1601,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                 .addComponent(txtFechaFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 130, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(btnBuscarFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
-                .addComponent(btnExportarOrdIng, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(19, 19, 19))
+                .addGap(18, 18, 18))
         );
         panelBuscaOrdenIngLayout.setVerticalGroup(
             panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -1576,22 +1609,15 @@ public class ConsultarRegistro extends javax.swing.JFrame {
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                        .addComponent(btnExportarOrdIng, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(btnBuscarFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelBuscaOrdenIngLayout.createSequentialGroup()
-                        .addGap(2, 2, 2)
-                        .addComponent(labelTituloOrdMec1, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(14, 14, 14))
-            .addGroup(panelBuscaOrdenIngLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtFechaFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(labelNombreRep2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                        .addComponent(txtFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addComponent(labelNombreRep1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtFechaFinal, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelNombreRep2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGroup(panelBuscaOrdenIngLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(txtFechaInicio, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelNombreRep1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(labelTituloOrdIng, javax.swing.GroupLayout.PREFERRED_SIZE, 30, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(btnBuscarFecha, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(12, 12, 12))
         );
 
         panelCardBuscador.add(panelBuscaOrdenIng, "card4-5");
@@ -2816,14 +2842,34 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             }
         });
 
+        btnExportarOrd.setBackground(new java.awt.Color(0, 0, 153));
+        btnExportarOrd.setForeground(new java.awt.Color(255, 255, 255));
+        btnExportarOrd.setFont(new java.awt.Font("Arial Black", 0, 10)); // NOI18N
+        btnExportarOrd.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                btnExportarOrdMouseEntered(evt);
+            }
+            public void mouseExited(java.awt.event.MouseEvent evt) {
+                btnExportarOrdMouseExited(evt);
+            }
+        });
+        btnExportarOrd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnExportarOrdActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout panelOrdenLayout = new javax.swing.GroupLayout(panelOrden);
         panelOrden.setLayout(panelOrdenLayout);
         panelOrdenLayout.setHorizontalGroup(
             panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOrdenLayout.createSequentialGroup()
                 .addContainerGap(19, Short.MAX_VALUE)
-                .addGroup(panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addGroup(panelOrdenLayout.createSequentialGroup()
+                        .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 250, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnExportarOrd, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(panelOrdenLayout.createSequentialGroup()
                         .addGap(2, 2, 2)
                         .addComponent(formularioOrden, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -2833,8 +2879,10 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         panelOrdenLayout.setVerticalGroup(
             panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelOrdenLayout.createSequentialGroup()
-                .addGap(18, 18, 18)
-                .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(10, 10, 10)
+                .addGroup(panelOrdenLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(comboFiltroOrden, javax.swing.GroupLayout.PREFERRED_SIZE, 32, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnExportarOrd, javax.swing.GroupLayout.PREFERRED_SIZE, 40, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(scrollOrdenes, javax.swing.GroupLayout.DEFAULT_SIZE, 259, Short.MAX_VALUE)
                 .addGap(18, 18, 18)
@@ -4734,7 +4782,18 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnImportarCSVMouseExited
 
     private void btnImportarCSVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnImportarCSVActionPerformed
-        // TODO add your handling code here:
+        JFileChooser selector = new JFileChooser();
+        selector.setFileFilter(new FileNameExtensionFilter("Archivos CSV", "csv"));
+        if (selector.showOpenDialog(this) != JFileChooser.APPROVE_OPTION) {
+            return;
+        }
+        try {
+            aviso(importarRepuestos((ArrayList<String[]>) Importador.leer(selector.getSelectedFile())));
+            mostrarRepuestos();
+        } catch (IOException ex) {
+            aviso("No se pudo leer el archivo");
+        }
+
     }//GEN-LAST:event_btnImportarCSVActionPerformed
 
     private void btnExportarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarRepMouseEntered
@@ -4746,7 +4805,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     }//GEN-LAST:event_btnExportarRepMouseExited
 
     private void btnExportarRepActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarRepActionPerformed
-        // TODO add your handling code here:
+        exportar(tableRepuestos.getModel(), "repuestos");
     }//GEN-LAST:event_btnExportarRepActionPerformed
 
     private void btnEliminarRepMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarRepMouseEntered
@@ -4776,17 +4835,20 @@ public class ConsultarRegistro extends javax.swing.JFrame {
 
     }//GEN-LAST:event_btnEliminarRepActionPerformed
 
-    private void btnExportarOrdEstMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdEstMouseEntered
-        btnExportarOrdEst.setBackground(new Color(8, 29, 86));
-    }//GEN-LAST:event_btnExportarOrdEstMouseEntered
+    private void btnExportarOrdMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdMouseEntered
+        btnExportarOrd.setBackground(new Color(8, 29, 86));
+    }//GEN-LAST:event_btnExportarOrdMouseEntered
 
-    private void btnExportarOrdEstMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdEstMouseExited
-        btnExportarOrdEst.setBackground(new Color(0, 0, 153));
-    }//GEN-LAST:event_btnExportarOrdEstMouseExited
+    private void btnExportarOrdMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdMouseExited
+        btnExportarOrd.setBackground(new Color(0, 0, 153));
+    }//GEN-LAST:event_btnExportarOrdMouseExited
 
-    private void btnExportarOrdEstActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarOrdEstActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarOrdEstActionPerformed
+    private void btnExportarOrdActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarOrdActionPerformed
+       String[] nombres = {"Ordenes", "Ordenes_por_Estado", "Reparaciones_por_Vehiculo",
+            "Reparaciones_por_Mecanico", "Ingresos_por_Reparaciones"};
+        exportar(tableOrdenes.getModel(), nombres[comboFiltroOrden.getSelectedIndex()]);
+
+    }//GEN-LAST:event_btnExportarOrdActionPerformed
 
     private void btnBuscarPlacaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBuscarPlacaMouseEntered
         btnBuscarPlaca.setBackground(new Color(8, 29, 86));
@@ -4804,18 +4866,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porPlaca(placa)));
     }//GEN-LAST:event_btnBuscarPlacaActionPerformed
 
-    private void btnExportarOrdPlaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdPlaMouseEntered
-        btnExportarOrdPla.setBackground(new Color(8, 29, 86));
-    }//GEN-LAST:event_btnExportarOrdPlaMouseEntered
-
-    private void btnExportarOrdPlaMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdPlaMouseExited
-        btnExportarOrdPla.setBackground(new Color(0, 0, 153));
-    }//GEN-LAST:event_btnExportarOrdPlaMouseExited
-
-    private void btnExportarOrdPlaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarOrdPlaActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarOrdPlaActionPerformed
-
     private void btnBuscarMecanicoMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBuscarMecanicoMouseEntered
         btnBuscarMecanico.setBackground(new Color(8, 29, 86));
     }//GEN-LAST:event_btnBuscarMecanicoMouseEntered
@@ -4831,18 +4881,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         }
         ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porMecanico(nombre)));
     }//GEN-LAST:event_btnBuscarMecanicoActionPerformed
-
-    private void btnExportarOrdMecMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdMecMouseEntered
-        btnExportarOrdMec.setBackground(new Color(8, 29, 86));
-    }//GEN-LAST:event_btnExportarOrdMecMouseEntered
-
-    private void btnExportarOrdMecMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdMecMouseExited
-        btnExportarOrdMec.setBackground(new Color(0, 0, 153));
-    }//GEN-LAST:event_btnExportarOrdMecMouseExited
-
-    private void btnExportarOrdMecActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarOrdMecActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarOrdMecActionPerformed
 
     private void btnBuscarFechaMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnBuscarFechaMouseEntered
         btnBuscarFecha.setBackground(new Color(8, 29, 86));
@@ -4865,18 +4903,6 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         }
         ejecutarConsulta(() -> cargarOrdenes(controladorReporte.porFechas(inicio, fin)));
     }//GEN-LAST:event_btnBuscarFechaActionPerformed
-
-    private void btnExportarOrdIngMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdIngMouseEntered
-        btnExportarOrdIng.setBackground(new Color(8, 29, 86));
-    }//GEN-LAST:event_btnExportarOrdIngMouseEntered
-
-    private void btnExportarOrdIngMouseExited(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnExportarOrdIngMouseExited
-        btnExportarOrdIng.setBackground(new Color(0, 0, 153));
-    }//GEN-LAST:event_btnExportarOrdIngMouseExited
-
-    private void btnExportarOrdIngActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnExportarOrdIngActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_btnExportarOrdIngActionPerformed
 
     private void btnEliminarUtiMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_btnEliminarUtiMouseEntered
         btnEliminarUti.setBackground(new Color(228, 55, 68));
@@ -5030,7 +5056,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
         }
         String estado = String.valueOf(tableOrdenes.getValueAt(fila, 6));
         boolean editable = estado.equals("PENDIENTE") || estado.equals("EN PROCESO");
-        labelOrden.setText("Orden de Trabajo ID: " + tableOrdenes.getValueAt(fila, 0));
+        labelOrden.setText("Orden ID: " + tableOrdenes.getValueAt(fila, 0));
         txtIdVehiculoOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 1)));
         txtIdMecanicoOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 2)));
         txtDescripcionOrd.setText(String.valueOf(tableOrdenes.getValueAt(fila, 3)));
@@ -5046,7 +5072,13 @@ public class ConsultarRegistro extends javax.swing.JFrame {
             comboEstado.setModel(new DefaultComboBoxModel<>(new String[]{estado}));
         }
         formularioOrden.setVisible(true);
-
+        if (estado.equals("FINALIZADA")) {
+            int respuesta = JOptionPane.showConfirmDialog(this, "Esta orden está finalizada. ¿Desea exportar el comprobante?",
+                    "Comprobante", JOptionPane.YES_NO_OPTION);
+            if (respuesta == JOptionPane.YES_OPTION) {
+                exportarComprobante(idSeleccionado(tableOrdenes));
+            }
+        }
     }//GEN-LAST:event_tableOrdenesMouseClicked
 
     private void tableRepuestosMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tableRepuestosMouseClicked
@@ -5172,10 +5204,7 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private swingx.RoundButton btnEliminarSer;
     private swingx.RoundButton btnEliminarUti;
     private swingx.RoundButton btnEliminarVeh;
-    private swingx.RoundButton btnExportarOrdEst;
-    private swingx.RoundButton btnExportarOrdIng;
-    private swingx.RoundButton btnExportarOrdMec;
-    private swingx.RoundButton btnExportarOrdPla;
+    private swingx.RoundButton btnExportarOrd;
     private swingx.RoundButton btnExportarRep;
     private swingx.RoundButton btnGuardarAba;
     private swingx.RoundButton btnGuardarCli;
@@ -5263,8 +5292,8 @@ public class ConsultarRegistro extends javax.swing.JFrame {
     private swingx.RoundLabel labelTituloMec;
     private swingx.RoundLabel labelTituloOrdEst;
     private swingx.RoundLabel labelTituloOrdEst1;
+    private swingx.RoundLabel labelTituloOrdIng;
     private swingx.RoundLabel labelTituloOrdMec;
-    private swingx.RoundLabel labelTituloOrdMec1;
     private swingx.RoundLabel labelTituloOrdPla;
     private swingx.RoundLabel labelTituloRea;
     private swingx.RoundLabel labelTituloRep;
