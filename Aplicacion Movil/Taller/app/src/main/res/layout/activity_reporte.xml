@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/activity_reporte"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/relative_fondo_reporte"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <RelativeLayout
+            android:id="@+id/relative_sup_r"
+            android:layout_width="wrap_content"
+            android:layout_height="60dp"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@color/yellow">
+
+
+            <Button
+                android:id="@+id/btn_regresar"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:backgroundTint="@color/yellow"
+                android:textColorHighlight="@color/yellow"
+                android:textColorHint="@color/yellow"
+                app:cornerRadius="0dp"
+                app:icon="@mipmap/regresar"
+                app:iconGravity="textTop"
+                app:iconSize="20dp"
+                app:iconTint="@color/dark_blue" />
+
+            <TextView
+                android:id="@+id/txt_titulo_rep"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp"
+                android:layout_toEndOf="@+id/btn_regresar"
+                android:fontFamily="@font/tw_cen_mt"
+                android:gravity="center_vertical"
+                android:text=" Repuestos con Bajo Inventario"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_buscar_fecha_inicio"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/btn_regresar"
+                android:backgroundTint="@color/white"
+                card_view:cardCornerRadius="20dp"
+                card_view:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:id="@+id/relative_buscar_fecha_inicio"
+                    android:layout_width="160dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@color/white"
+                    android:paddingStart="20dp">
+
+                    <EditText
+                        android:id="@+id/edtxt_fecha_inicio"
+                        android:layout_width="150dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginEnd="10dp"
+                        android:background="@color/white"
+                        android:contentDescription="Search field"
+                        android:ems="10"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="@font/tw_cen_mt"
+                        android:gravity="center_vertical"
+                        android:hint="yyyy-mm-aa"
+                        android:imeOptions="actionSearch"
+                        android:importantForAccessibility="yes"
+                        android:inputType="text"
+                        android:paddingEnd="5dp"
+                        android:singleLine="true"
+                        android:textColor="@color/dark_grey"
+                        android:textColorHighlight="#A7C0FF"
+                        android:textColorHint="@color/material_dynamic_neutral70"
+                        android:textCursorDrawable="@color/dark_grey"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_buscar_fecha_final"
+                android:layout_width="160dp"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/card_buscar_fecha_inicio"
+                android:backgroundTint="@color/white"
+                card_view:cardCornerRadius="20dp"
+                card_view:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:id="@+id/relative_buscar_fecha_final"
+                    android:layout_width="160dp"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@color/white"
+                    android:paddingStart="20dp">
+
+                    <EditText
+                        android:id="@+id/edtxt_fecha_final"
+                        android:layout_width="105dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginEnd="10dp"
+                        android:background="@color/white"
+                        android:contentDescription="Search field"
+                        android:ems="10"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="@font/tw_cen_mt"
+                        android:gravity="center_vertical"
+                        android:hint="yyyy-mm-aa"
+                        android:imeOptions="actionSearch"
+                        android:importantForAccessibility="yes"
+                        android:inputType="text"
+                        android:paddingEnd="5dp"
+                        android:singleLine="true"
+                        android:textColor="@color/dark_grey"
+                        android:textColorHighlight="#A7C0FF"
+                        android:textColorHint="@color/material_dynamic_neutral70"
+                        android:textCursorDrawable="@color/dark_grey"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_buscar_placa"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/btn_regresar"
+                android:backgroundTint="@color/white"
+                card_view:cardCornerRadius="20dp"
+                card_view:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:id="@+id/relative_buscar_placa"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@color/white"
+                    android:paddingStart="20dp">
+
+                    <EditText
+                        android:id="@+id/edtxt_placa"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginEnd="0dp"
+                        android:layout_toStartOf="@+id/image_lupa_1"
+                        android:background="@color/white"
+                        android:contentDescription="Search field"
+                        android:ems="10"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="@font/tw_cen_mt"
+                        android:gravity="center_vertical"
+                        android:hint="Buscar por placa..."
+                        android:imeOptions="actionSearch"
+                        android:importantForAccessibility="yes"
+                        android:inputType="text"
+                        android:paddingEnd="5dp"
+                        android:singleLine="true"
+                        android:textColor="@color/dark_grey"
+                        android:textColorHighlight="#A7C0FF"
+                        android:textColorHint="@color/material_dynamic_neutral70"
+                        android:textCursorDrawable="@color/dark_grey"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/image_lupa_1"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="0dp"
+                        android:src="@mipmap/buscar" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_buscar_mecanico"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/btn_regresar"
+                android:backgroundTint="@color/white"
+                card_view:cardCornerRadius="20dp"
+                card_view:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:id="@+id/relative_buscar_mecanico"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@color/white"
+                    android:paddingStart="20dp">
+
+                    <EditText
+                        android:id="@+id/edtxt_mecanico"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginEnd="0dp"
+                        android:layout_toStartOf="@+id/image_lupa_2"
+                        android:background="@color/white"
+                        android:contentDescription="Search field"
+                        android:ems="10"
+                        android:focusableInTouchMode="true"
+                        android:fontFamily="@font/tw_cen_mt"
+                        android:gravity="center_vertical"
+                        android:hint="Buscar por nombre..."
+                        android:imeOptions="actionSearch"
+                        android:importantForAccessibility="yes"
+                        android:inputType="text"
+                        android:paddingEnd="5dp"
+                        android:singleLine="true"
+                        android:textColor="@color/dark_grey"
+                        android:textColorHighlight="#A7C0FF"
+                        android:textColorHint="@color/material_dynamic_neutral70"
+                        android:textCursorDrawable="@color/dark_grey"
+                        android:textSize="18sp"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/image_lupa_2"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentEnd="true"
+                        android:layout_alignParentBottom="true"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginEnd="15dp"
+                        android:layout_marginBottom="0dp"
+                        android:src="@mipmap/buscar" />
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_estado"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginBottom="10dp"
+                android:layout_toEndOf="@id/btn_regresar"
+                android:backgroundTint="@color/white"
+                card_view:cardCornerRadius="20dp"
+                card_view:cardElevation="0dp">
+
+                <RelativeLayout
+                    android:id="@+id/relative_estado"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentTop="true"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginTop="0dp"
+                    android:layout_marginEnd="0dp"
+                    android:background="@color/white"
+                    android:paddingStart="20dp">
+
+                    <Spinner
+                        android:id="@+id/spinner_estado"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
+                        android:layout_alignParentBottom="true"
+                        android:fontFamily="@font/tw_cen_mt"
+                        android:paddingEnd="5dp"
+                        android:textColor="@color/dark_grey"
+                        android:textSize="18sp" />
+
+                </RelativeLayout>
+
+            </androidx.cardview.widget.CardView>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/relative_resultado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/relative_sup_r"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:layout_marginEnd="0dp"
+            android:background="@color/white">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_resultado"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="0dp">
+            </androidx.recyclerview.widget.RecyclerView>
+
+        </RelativeLayout>
+
+    </RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
